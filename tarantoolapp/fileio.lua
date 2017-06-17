@@ -1,3 +1,4 @@
+local errno = require('errno')
 local fio = require('fio')
 local util = require('tarantoolapp.util')
 

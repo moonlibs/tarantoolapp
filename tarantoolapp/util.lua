@@ -11,6 +11,15 @@ local function merge_tables(t, ...)
 end
 
 
+local function copy_tabledict(t)
+	local t2 = {}
+	for k, v in pairs(t) do
+		t2[k] = v
+	end
+	return t2
+end
+
+
 local function isroot(s)
 	if s == nil or s == '' then
 		return false
@@ -59,6 +68,7 @@ end
 
 return {
 	merge_tables = merge_tables,
+	copy_tabledict = copy_tabledict,
 	isroot = isroot,
 	slashends = slashends,
 	abspath = abspath,

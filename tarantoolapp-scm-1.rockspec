@@ -15,6 +15,7 @@ description = {
 
 dependencies = {
     'lua >= 5.1';
+    -- 'lua-resty-template ~> 1.9';
 }
 
 
