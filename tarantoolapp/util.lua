@@ -57,10 +57,35 @@ local function get_workdir(def)
 	return fio.abspath(fio.pathjoin(cur, workdir))
 end
 
+local function pathinfo()
+	local info = {}
+	local b = debug.getinfo(2, "S").source:sub(2);
+	while b:match('/[^/]+/%.%./') do
+		b = b:gsub('/[^/]+/%.%./',"/")
+	end
+	while b:match('/%./') do
+		b = b:gsub('/%./',"/")
+	end
+	info.path = b
+	info.name = (info.path:match("/([^/]+)$"))
+	info.dir  = fio.dirname(info.path)
+	return info
+end
+
+local function dump(x)
+	local j = require'yaml'.new()
+	j.cfg{
+		encode_use_tostring = true;
+	}
+	return j.encode(x)
+end
+
 return {
 	merge_tables = merge_tables,
 	isroot = isroot,
 	slashends = slashends,
 	abspath = abspath,
-	get_workdir = get_workdir
+	get_workdir = get_workdir,
+	pathinfo = pathinfo,
+	dump = dump,
 }
