@@ -1,6 +1,5 @@
 # {{__appname__}}
 
-my super option is: {{my_super_option}}
 _your application description_
 
 ## Commands

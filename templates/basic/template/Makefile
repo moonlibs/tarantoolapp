@@ -13,3 +13,6 @@ run:
 	
 dep:
 	./dep.py --meta-file=./meta.yaml --luarocks-tree=./libs
+
+rpm:
+	rpmbuild -ba --define="SRC_DIR $PWD" rpm/{{__appname__}}.spec

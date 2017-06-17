@@ -1,6 +1,6 @@
 name: {{__appname__}}
 version: {{__version__}}
 deps:
-  - https://github.com/igorcoding/tnt-config/raw/master/config-scm-1.rockspec
-  - https://github.com/Mons/tnt-package-reload/raw/master/package.reload-scm-1.rockspec
+  - https://raw.githubusercontent.com/Mons/tnt-config/master/config-scm-1.rockspec
+  - https://raw.githubusercontent.com/Mons/tnt-package-reload/master/package.reload-scm-1.rockspec
 tntdeps: {}

@@ -1,8 +1,10 @@
+local log = require 'log'
+
 return {
-	start = function()
-		print('Hello from {{__appname__}}')
+	start = function(config)
+		log.info('Staring {{__appname__}}')
 	end,
 	destroy = function()
-		print('Goodbye from {{__appname__}}')
+		log.info('Unloading {{__appname__}}')
 	end
 }
