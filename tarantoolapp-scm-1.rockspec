@@ -20,10 +20,12 @@ dependencies = {
 
 build = {
     type = 'builtin';
-    copy_directories = {'template'};
+    copy_directories = {'templates'};
     modules = {
         ['tarantoolapp.cli']    = 'tarantoolapp/cli.lua';
         ['tarantoolapp.create'] = 'tarantoolapp/create.lua';
+        ['tarantoolapp.fileio'] = 'tarantoolapp/fileio.lua';
+        ['tarantoolapp.util'] = 'tarantoolapp/util.lua';
     };
     install = {
         bin = {
