@@ -12,6 +12,16 @@ local default_opts = {
 	template_name = 'basic'
 }
 
+local function description(info)
+	return "Create new application"
+end
+
+local function help(info)
+	return "Options:\n"
+		.."\t-t --template TEMPLATE (basic)  -  template to use\n"
+		.."\t-n NAME                         -  application name\n"
+end
+
 local function merge_opts(opts, default_opts)
 	for k, v in pairs(default_opts) do
 		if opts[k] == nil then
@@ -62,7 +72,7 @@ local function render_file(filepath, opts)
 end
 
 
-local function run(rootdir)
+local function run(info)
 	local opts = default_opts  -- temporary while no cli
 	
 	opts = merge_opts(opts, default_opts)
@@ -89,7 +99,6 @@ local function run(rootdir)
 		end
 	end
 	
-	
 	fileio.copydir(template_src, opts.workdir)
 	local files = fileio.listdir(opts.workdir)
 	for _, f in ipairs(files) do
@@ -102,4 +111,9 @@ local function run(rootdir)
 	
 end
 
-return run
+
+return {
+	description = description,
+	help = help,
+	run = run,
+}
