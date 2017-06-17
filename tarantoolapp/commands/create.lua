@@ -78,7 +78,7 @@ local function run(info)
 	opts = merge_opts(opts, default_opts)
 	opts.workdir = util.get_workdir(opts.workdir)
 	
-	local templates_dir = fio.pathjoin(rootdir, 'templates')
+	local templates_dir = fio.pathjoin(info.rootdir, 'templates')
 	local template_rootdir = fio.pathjoin(templates_dir, opts.template_name)
 	local template_src = fio.pathjoin(template_rootdir, 'template')
 	local template_config_path = fio.pathjoin(template_rootdir, 'config.yaml')
