@@ -44,7 +44,7 @@ local function render_file(filepath, opts)
 	
 	local fh = fio.open(filepath, {'O_WRONLY', 'O_TRUNC'}, src_mode)
 	if not fh then
-		errorf("Failed to open file %s: %s", filepath, errno.strerror())
+		error(string.format("Failed to open file %s: %s", filepath, errno.strerror()))
 	end
 	
 	fh:write(new_s)
@@ -61,17 +61,15 @@ local function run(rootdir)
 	local templates_dir = fio.pathjoin(rootdir, 'templates')
 	local src = fio.pathjoin(templates_dir, opts.template_name)
 	
-	print(src)
-	print(opts.workdir)
 	fileio.copydir(src, opts.workdir)
-	-- local files = fileio.listdir(opts.workdir)
-	-- for _, f in ipairs(files) do
-	-- 	local fmode, fpath = f.mode, f.path
-	-- 	if fmode == 'file' then
-	-- 		render_file(fpath, opts)
-	-- 	end
-	-- 	render_name(fpath, opts)
-	-- end
+	local files = fileio.listdir(opts.workdir)
+	for _, f in ipairs(files) do
+		local fmode, fpath = f.mode, f.path
+		if fmode == 'file' then
+			render_file(fpath, opts)
+		end
+		render_name(fpath, opts)
+	end
 	
 end
 

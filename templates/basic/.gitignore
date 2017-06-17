@@ -40,4 +40,5 @@ luac.out
 *.hex
 
 # Custom
-tmp*
+tnt
+libs

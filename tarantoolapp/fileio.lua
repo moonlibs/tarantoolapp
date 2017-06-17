@@ -46,7 +46,7 @@ end
 function fileio.read_file(filepath)
 	local fh = fio.open(filepath, {'O_RDONLY'})
 	if not fh then
-		errorf("Failed to open file %s: %s", filepath, errno.strerror())
+		error(string.format("Failed to open file %s: %s", filepath, errno.strerror()))
 	end
 	
 	local data = ''
@@ -65,7 +65,7 @@ end
 function fileio.copyfile(src, dest)
 	local src_fh = fio.open(src, {'O_RDONLY'})
 	if not src_fh then
-		errorf("Failed to open file %s: %s", src, errno.strerror())
+		error(string.format("Failed to open file %s: %s", src, errno.strerror()))
 	end
 	local src_mode = fio.stat(src).mode
 	
@@ -76,7 +76,7 @@ function fileio.copyfile(src, dest)
 	
 	local dest_fh = fio.open(dest, {'O_WRONLY', 'O_CREAT'}, local_perms)
 	if not dest_fh then
-		errorf("Failed to open file %s: %s", dest, errno.strerror())
+		error(string.format("Failed to open file %s: %s", dest, errno.strerror()))
 	end
 	
 	local data = nil
@@ -111,13 +111,11 @@ function fileio.copydir(src, dest)
 		if fmode == 'directory' then
 			local ok = fio.mkdir(p, folder_perms)
 			if not ok then
-				errorf("Couln't create folder %s: %s", p, errno.strerror())
+				error(string.format("Couln't create folder %s: %s", p, errno.strerror()))
 			end
 		else
 			fileio.copyfile(fpath, p)
 		end
-		
-		-- printf('Copied %s to %s', fpath, p)
 	end
 end
 
