@@ -9,18 +9,8 @@ local default_opts = {
 	appname = 'testapp',
 	version = 'scm-1',
 	description = 'TestApp',
-	template_name = 'basic'
+	template = 'basic'
 }
-
-local function description(info)
-	return "Create new application"
-end
-
-local function help(info)
-	return "Options:\n"
-		.."\t-t --template TEMPLATE (basic)  -  template to use\n"
-		.."\t-n NAME                         -  application name\n"
-end
 
 local function merge_opts(opts, default_opts)
 	for k, v in pairs(default_opts) do
@@ -72,34 +62,64 @@ local function render_file(filepath, opts)
 end
 
 
-local function run(info)
-	local opts = default_opts  -- temporary while no cli
-	
-	opts = merge_opts(opts, default_opts)
-	opts.workdir = util.get_workdir(opts.workdir)
-	
+local function get_template(info, template)
 	local templates_dir = fio.pathjoin(info.rootdir, 'templates')
-	local template_rootdir = fio.pathjoin(templates_dir, opts.template_name)
+	local template_rootdir = fio.pathjoin(templates_dir, template)
 	local template_src = fio.pathjoin(template_rootdir, 'template')
 	local template_config_path = fio.pathjoin(template_rootdir, 'config.yaml')
 	
 	if fio.stat(template_rootdir) == nil then
-		error(string.format("Template '%s' not found", opts.template_name))
+		error(string.format("Template '%s' not found", template))
 	end
 	
 	if fio.stat(template_src) == nil then
-		error(string.format("Template '%s' is misconfigured: `template` folder not found", opts.template_name))
+		error(string.format("Template '%s' is misconfigured: `template` folder not found", template))
 	end
 	
+	local template_config = nil
+	local template_options = nil
 	if fio.stat(template_config_path) ~= nil then
-		local template_config = yaml.decode(fileio.read_file(template_config_path))
-		if template_config.options ~= nil then
-			merge_opts(default_opts, template_config.options)
-			merge_opts(opts, default_opts)
-		end
+		template_config = yaml.decode(fileio.read_file(template_config_path))
+		template_options = template_config.options
 	end
 	
-	fileio.copydir(template_src, opts.workdir)
+	return {
+		root = template_rootdir,
+		src = template_src,
+		config = template_config,
+		options = template_options
+	}
+end
+
+
+local function description(info)
+	return "Create new application"
+end
+
+
+local function help(info)
+	-- TODO: parse getopt, extract template name
+	-- TODO: call get_template(info, opts.template)
+	-- TODO: read extra opts and add them to stdout
+	return "Options:\n"
+		.."\t-t --template TEMPLATE (basic)  -  template to use\n"
+		.."\t-n NAME                         -  application name\n"
+end
+
+
+local function run(info)
+	local opts = default_opts  -- temporary while no cli
+	
+	opts = merge_opts(opts, default_opts)
+	opts.workdir = util.get_workdir(opts.workdir, true)
+	
+	local templ = get_template(info, opts.template)
+	if templ.options ~= nil then
+		merge_opts(default_opts, templ.options)
+		merge_opts(opts, default_opts)
+	end
+	
+	fileio.copydir(templ.src, opts.workdir)
 	local files = fileio.listdir(opts.workdir)
 	for _, f in ipairs(files) do
 		local fmode, fpath = f.mode, f.path

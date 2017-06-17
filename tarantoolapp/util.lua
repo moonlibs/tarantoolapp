@@ -1,5 +1,4 @@
 local fio = require('fio')
-local luarocks_util = require('luarocks.util')
 
 local function merge_tables(t, ...)
 	for _, tt in ipairs({...}) do
@@ -43,7 +42,13 @@ local function abspath(p,b)
 end
 
 
-local function get_workdir(def)
+local function get_workdir(def, create_if_not_exist)
+	local fileio = require('tarantoolapp.fileio')
+	
+	if create_if_not_exist == nil then
+		create_if_not_exist = false
+	end
+	
 	local workdir
 	if #arg > 1 then
 		error('Either 0 or 1 argument is expected')
@@ -53,17 +58,22 @@ local function get_workdir(def)
 		workdir = def
 	end
 	
-	if isroot(workdir) then
-		return workdir
+	if not isroot(workdir) then
+	
+		local cur = fio.cwd()
+		
+		if workdir == '.' then
+			workdir = cur
+		end
+		workdir = fio.abspath(fio.pathjoin(cur, workdir))
 	end
 	
-	local cur = fio.cwd()
-	
-	if workdir == '.' then
-		return cur
+	-- print(fio.stat(workdir))
+	if create_if_not_exist and fio.stat(workdir) == nil then
+		fileio.mkdir(workdir)
 	end
 	
-	return fio.abspath(fio.pathjoin(cur, workdir))
+	return workdir
 end
 
 local function pathinfo()

@@ -121,4 +121,12 @@ function fileio.copydir(src, dest)
 end
 
 
+function fileio.mkdir(path)
+	local ok = fio.mkdir(path, folder_perms)
+	if not ok then
+		error(string.format("Couln't create folder %s: %s", path, errno.strerror()))
+	end
+end
+
+
 return fileio
