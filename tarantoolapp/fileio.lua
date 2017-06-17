@@ -112,7 +112,7 @@ function fileio.copydir(src, dest)
 		if fmode == 'directory' then
 			local ok = fio.mkdir(p, folder_perms)
 			if not ok then
-				error(string.format("Couln't create folder %s: %s", p, errno.strerror()))
+				error(string.format("Could not create folder %s: %s", p, errno.strerror()))
 			end
 		else
 			fileio.copyfile(fpath, p)
@@ -124,8 +124,13 @@ end
 function fileio.mkdir(path)
 	local ok = fio.mkdir(path, folder_perms)
 	if not ok then
-		error(string.format("Couln't create folder %s: %s", path, errno.strerror()))
+		error(string.format("Could not create folder %s: %s", path, errno.strerror()))
 	end
+end
+
+
+function fileio.exists(path)
+	return fio.stat(path) ~= nil
 end
 
 

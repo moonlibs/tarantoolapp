@@ -42,34 +42,24 @@ local function abspath(p,b)
 end
 
 
-local function get_workdir(def, create_if_not_exist)
+local function get_workdir(workdir, create_if_not_exist)
 	local fileio = require('tarantoolapp.fileio')
 	
 	if create_if_not_exist == nil then
 		create_if_not_exist = false
 	end
 	
-	local workdir
-	if #arg > 1 then
-		error('Either 0 or 1 argument is expected')
-	elseif #arg == 1 then
-		workdir = arg[1]
-	else
-		workdir = def
-	end
-	
 	if not isroot(workdir) then
-	
 		local cur = fio.cwd()
 		
 		if workdir == '.' then
 			workdir = cur
+		else
+			workdir = fio.abspath(fio.pathjoin(cur, workdir))
 		end
-		workdir = fio.abspath(fio.pathjoin(cur, workdir))
 	end
 	
-	-- print(fio.stat(workdir))
-	if create_if_not_exist and fio.stat(workdir) == nil then
+	if create_if_not_exist and not fileio.exists(workdir) then
 		fileio.mkdir(workdir)
 	end
 	
