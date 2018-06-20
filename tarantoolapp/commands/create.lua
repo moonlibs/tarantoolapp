@@ -157,7 +157,6 @@ local function run(info, args)
 	end
 	fileio.copydir(templ.src, path)
 	local files = fileio.listdir(path, false)
-	print(require'yaml'.encode(files))
 	for _, f in ipairs(files) do
 		local fmode, fpath = f.mode, f.path
 		if fmode == 'file' then
