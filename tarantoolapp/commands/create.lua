@@ -71,11 +71,11 @@ local function get_template(info, template)
 	local template_config_path = fio.pathjoin(template_rootdir, 'config.yaml')
 
 	if not fileio.exists(template_rootdir) then
-		error(string.format("Template '%s' not found", template))
+		util.errorf("Template '%s' not found", template)
 	end
 
 	if not fileio.exists(template_src) then
-		error(string.format("Template '%s' is misconfigured: `template` folder not found", template))
+		util.errorf("Template '%s' is misconfigured: `template` folder not found", template)
 	end
 
 	local template_config = nil
