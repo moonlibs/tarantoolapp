@@ -27,7 +27,7 @@ $ tarantoolapp create NAME [--template TEMPLATE] [--path PATH]
 ### Parameters to `tarantoolapp create`:
 
 * `NAME` - Desired application name
-* `TEMPLATE` - Template to use (currently available: `basic`)
+* `TEMPLATE` - Template to use (currently available: `basic`, `luakit`, `ckit`)
 * `PATH` - custom path where project will be created. If not specified the project is created in the current working directory under `NAME` folder
 
 ## Install dependencies
@@ -65,3 +65,9 @@ $ tarantoolapp dep [--meta-file META_FILE] [--tree TREE] [--luarocks-config LUAR
 * `localdeps` - list of paths to local rockspec files (each is installed using `luarocks make` command). You can specify dependency in either of 2 following formats:
     - `./local/path/to/package/package.rockspec` if `*.rockspec` file is in the package root
     - `./local/path/to/package/rockspecs/package.rockspec:./local/path/to/package` - specify the package root after the colon
+
+## Get help
+
+```
+$ tarantoolapp help <command>
+```

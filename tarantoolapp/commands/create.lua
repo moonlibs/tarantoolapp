@@ -105,7 +105,7 @@ local function help(info)
 	-- TODO: read extra opts and add them to stdout
 	return "Options:\n"
 		.."\t NAME                        -  project name\n"
-		.."\t--template TEMPLATE          -  template to use (default is basic)\n"
+		.."\t--template TEMPLATE          -  template to use (default is basic). Available templates: (basic, luakit, ckit)\n"
 		.."\t--path PATH                  -  path to directory where to setup project (default is ./NAME)\n"
 end
 
@@ -114,7 +114,7 @@ local function run(info, args)
 	local appname = args[1]
 
 	if appname == nil then
-		util.errorf('[create] appname must be specified')
+		util.errorf('[create] project name must be specified')
 	end
 
 	table.remove(args, 1, 1)
@@ -131,14 +131,14 @@ local function run(info, args)
 
 	local opts = {}
 	if appname == nil then
-		util.errorf('app name must be provided as the 1st argument as tarantoolapp create <NAME>')
+		util.errorf('project name must be provided as the 1st argument as tarantoolapp create <NAME>')
 	end
 	opts.template = parsed_args['--template']
 	opts.appname = appname
 
 	local path = fio.abspath(parsed_args['--path'])
 	if fileio.exists(path) then
-		util.errorf('Application "%s" already exists under path %s', appname, path)
+		util.errorf('Project "%s" already exists under path %s', appname, path)
 	end
 
 	opts = merge_opts(opts, default_opts)
@@ -156,7 +156,8 @@ local function run(info, args)
         end
 	end
 	fileio.copydir(templ.src, path)
-	local files = fileio.listdir(path)
+	local files = fileio.listdir(path, false)
+	print(require'yaml'.encode(files))
 	for _, f in ipairs(files) do
 		local fmode, fpath = f.mode, f.path
 		if fmode == 'file' then
@@ -165,7 +166,7 @@ local function run(info, args)
 		render_name(fpath, opts)
 	end
 
-	util.printf('Application "%s" structure is created in: %s', opts.appname, path)
+	util.printf('Project "%s" structure is created in: %s', opts.appname, path)
 end
 
 

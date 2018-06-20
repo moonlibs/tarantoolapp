@@ -15,30 +15,44 @@ local perms = bit.bor(modes.S_IRUSR, modes.S_IWUSR,
 local folder_perms = bit.bor(modes.S_IRUSR, modes.S_IWUSR, modes.S_IXUSR,
                              modes.S_IRGRP, modes.S_IWGRP, modes.S_IXGRP,
                              modes.S_IROTH,                modes.S_IXOTH)
-                             
+
  function fileio.get_mode(file_path)
 	local f_mode = fio.stat(file_path).mode
 	local is_directory = (bit.band(f_mode, S_IFDIR) > 0)
 	local is_file = (bit.band(f_mode, S_IFREG) > 0)
-	
+
 	if is_directory then
 		return 'directory'
 	end
 	return 'file'
 end
 
-function fileio.listdir(path)
+function fileio.listdir(path, directory_first)
+	if directory_first== nil then
+		directory_first = true
+	end
+
 	local files = {}
 	for _, postfix in ipairs({'/*', '/.*'}) do
 		for _, file in ipairs(fio.glob(path .. postfix)) do
 			if fio.basename(file) ~= "." and fio.basename(file) ~= ".." then
 				local mode = fileio.get_mode(file)
-				table.insert(files, {
-					mode = mode,
-					path = file
-				})
+
+				if directory_first then
+					table.insert(files, {
+						mode = mode,
+						path = file
+					})
+				end
 				if mode == "directory" then
 					files = util.merge_tables(files, fileio.listdir(file))
+				end
+
+				if not directory_first then
+					table.insert(files, {
+						mode = mode,
+						path = file
+					})
 				end
 			end
 		end
@@ -51,7 +65,7 @@ function fileio.read_file(filepath)
 	if not fh then
 		error(string.format("Failed to open file %s: %s", filepath, errno.strerror()))
 	end
-	
+
 	local data = ''
 	while true do
 		local d = fh:read(4096)
@@ -71,17 +85,17 @@ function fileio.copyfile(src, dest)
 		error(string.format("Failed to open file %s: %s", src, errno.strerror()))
 	end
 	local src_mode = fio.stat(src).mode
-	
+
 	local local_perms = bit.bor(perms,
 	                            bit.band(src_mode, fio.c.mode.S_IXUSR),
 	                            bit.band(src_mode, fio.c.mode.S_IXGRP),
 	                            bit.band(src_mode, fio.c.mode.S_IXOTH))
-	
+
 	local dest_fh = fio.open(dest, {'O_WRONLY', 'O_CREAT'}, local_perms)
 	if not dest_fh then
 		error(string.format("Failed to open file %s: %s", dest, errno.strerror()))
 	end
-	
+
 	local data = nil
 	while true do
 		local d = src_fh:read(4096)
@@ -98,19 +112,19 @@ end
 
 function fileio.copydir(src, dest)
 	local files = fileio.listdir(src)
-	
+
 	local msrc, _ = src:gsub('([().%+-*?[^$])', '%%%1')
-	
+
 	assert(dest ~= nil)
 	for _, f in ipairs(files) do
 		local fmode, fpath = f.mode, f.path
-		
+
 		local filename = fio.basename(fpath)
 		local filedir = fio.dirname(fpath)
 		local relative_path = fpath:match(msrc .. '/(.*)')
-		
+
 		local p = fio.pathjoin(dest, relative_path)
-		
+
 		if fmode == 'directory' then
 			local ok = fio.mkdir(p, folder_perms)
 			if not ok then

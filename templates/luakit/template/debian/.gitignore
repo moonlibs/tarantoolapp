@@ -1,0 +1,5 @@
+tarantool-{{__appname__}}/
+files
+stamp-*
+*.substvars
+*.log
