@@ -1,6 +1,6 @@
-local errno = require('errno')
-local fio = require('fio')
-local util = require('tarantoolapp.util')
+local errno = require 'errno'
+local fio = require 'fio'
+local util = require 'tarantoolapp.util'
 
 local fileio = {}
 
@@ -29,15 +29,17 @@ end
 
 function fileio.listdir(path)
 	local files = {}
-	for _, file in ipairs(fio.glob(path .. '/*')) do
-		if file ~= "." and file ~= ".." then
-			local mode = fileio.get_mode(file)
-			table.insert(files, {
-				mode = mode,
-				path = file
-			})
-			if mode == "directory" then
-				files = util.merge_tables(files, fileio.listdir(file))
+	for _, postfix in ipairs({'/*', '/.*'}) do
+		for _, file in ipairs(fio.glob(path .. postfix)) do
+			if fio.basename(file) ~= "." and fio.basename(file) ~= ".." then
+				local mode = fileio.get_mode(file)
+				table.insert(files, {
+					mode = mode,
+					path = file
+				})
+				if mode == "directory" then
+					files = util.merge_tables(files, fileio.listdir(file))
+				end
 			end
 		end
 	end
@@ -115,7 +117,10 @@ function fileio.copydir(src, dest)
 				error(string.format("Could not create folder %s: %s", p, errno.strerror()))
 			end
 		else
-			fileio.copyfile(fpath, p)
+			if fio.lstat(fpath):is_link() then
+				fio.symlink(fio.readlink(fpath), p)
+			end
+			fio.copyfile(fpath, p)
 		end
 	end
 end
@@ -130,8 +135,10 @@ end
 
 
 function fileio.exists(path)
-	return fio.stat(path) ~= nil
+	if _TARANTOOL >= "1.9" then
+        return fio.path.exists(path)
+    end
+    return fio.stat(path) ~= nil
 end
-
 
 return fileio

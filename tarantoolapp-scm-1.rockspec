@@ -15,13 +15,14 @@ description = {
 
 dependencies = {
     'lua >= 5.1';
+    'datafile';
     -- 'lua-resty-template ~> 1.9';
 }
 
 
 build = {
     type = 'builtin';
-    -- copy_directories = {'templates'};
+    copy_directories = {'templates'};
     modules = {
         ['tarantoolapp.cli']    = 'tarantoolapp/cli.lua';
         ['tarantoolapp.getopt']    = 'tarantoolapp/getopt.lua';

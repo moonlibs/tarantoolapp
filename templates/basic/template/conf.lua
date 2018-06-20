@@ -1,20 +1,17 @@
+local bg
+local logger
+if os.getenv('FG') then
+    bg = false
+    logger = '| tee'
+end
+
 box = {
-	listen = os.getenv("LISTEN_URI") or "127.0.0.1:3301",
-	slab_alloc_arena = 0.1,
-	background = not tonumber(os.getenv("DEV")) == 1,
-	
-	-- snapshot_period = 3600,
-	-- snapshot_count  = 2,
-	
-	pid_file = "tarantool.pid",
-	-- logger = 'file:tarantool.log',
-	-- replication_source = { }
+    listen = os.getenv("LISTEN") or "127.0.0.1:3301",
+    memtx_memory = 100 * 1024 * 1024, -- 100 MB
+    background = bg,
+    log = logger,
 }
 
--- console = {
---     listen = '127.0.0.1:3302'
--- }
-
 app = {
-	
+
 }

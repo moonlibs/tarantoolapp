@@ -1,7 +1,9 @@
-local fio = require('fio')
-local yaml = require('yaml')
-local fileio = require('tarantoolapp.fileio')
-local util = require('tarantoolapp.util')
+local datafile = require 'datafile'
+local errno = require 'errno'
+local fio = require 'fio'
+local yaml = require 'yaml'
+local fileio = require 'tarantoolapp.fileio'
+local util = require 'tarantoolapp.util'
 
 
 local default_opts = {
@@ -63,7 +65,7 @@ end
 
 
 local function get_template(info, template)
-	local templates_dir = fio.pathjoin(info.rootdir, 'templates')
+	local templates_dir = datafile.path('templates')
 	local template_rootdir = fio.pathjoin(templates_dir, template)
 	local template_src = fio.pathjoin(template_rootdir, 'template')
 	local template_config_path = fio.pathjoin(template_rootdir, 'config.yaml')
@@ -102,16 +104,39 @@ local function help(info)
 	-- TODO: call get_template(info, opts.template)
 	-- TODO: read extra opts and add them to stdout
 	return "Options:\n"
-		.."\t-t --template TEMPLATE (basic)  -  template to use\n"
-		.."\t-n NAME                         -  application name\n"
+		.."\t NAME                        -  project name\n"
+		.."\t--template TEMPLATE          -  template to use (default is basic)\n"
+		.."\t--path PATH                  -  path to directory where to setup project (default is ./NAME)\n"
 end
 
 
-local function run(info)
-	local opts = default_opts  -- temporary while no cli
+local function run(info, args)
+	local appname = args[1]
+	table.remove(args, 1, 1)
+
+	local parsed_args = {
+        ['--template'] = 'basic',
+        ['--path']     = fio.pathjoin('.', appname),
+	}
+	if #args % 2 ~= 0 then
+		error('Uneven args')
+	end
+
+    for i = 1,#args/2 do parsed_args[ args[i*2-1] ] = args[i*2] end
+
+	local opts = {}
+	if appname == nil then
+		error('app name must be provided as the 1st argument as tarantoolapp create <NAME>')
+	end
+	opts.template = parsed_args['--template']
+	opts.appname = appname
+
+	local path = fio.abspath(parsed_args['--path'])
+	if fileio.exists(path) then
+		error(string.format('Application "%s" already exists under path %s', appname, path))
+	end
 	
 	opts = merge_opts(opts, default_opts)
-	opts.workdir = util.get_workdir(opts.workdir, true)
 	
 	local templ = get_template(info, opts.template)
 	if templ.options ~= nil then
@@ -119,8 +144,15 @@ local function run(info)
 		merge_opts(opts, default_opts)
 	end
 	
-	fileio.copydir(templ.src, opts.workdir)
-	local files = fileio.listdir(opts.workdir)
+	util.fprint("Using %s template in working directory %s", opts.template, path)
+	if not fileio.exists(path) then
+		if not fio.mktree(path) then
+            util.fprint('Error while creating %s: %s', path, errno.strerror())
+            os.exit(1)
+        end
+	end
+	fileio.copydir(templ.src, path)
+	local files = fileio.listdir(path)
 	for _, f in ipairs(files) do
 		local fmode, fpath = f.mode, f.path
 		if fmode == 'file' then
@@ -129,6 +161,7 @@ local function run(info)
 		render_name(fpath, opts)
 	end
 	
+	util.fprint('Application "%s" structure is created in: %s', opts.appname, path)
 end
 
 

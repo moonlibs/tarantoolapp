@@ -1,4 +1,4 @@
-.PHONY: test run clean dep
+.PHONY: test run clean dep rpm
 
 all: test
 
@@ -6,13 +6,16 @@ test:
 	./scripts/test.sh
 
 clean:
-	rm -rf tnt*
+	rm -rf .tnt*
 
 run:
-	./scripts/run.sh
-	
+	FG=1 CONF=./conf.lua tarantoolctl start {{__appname__}}.lua
+
 dep:
-	./dep.py --meta-file=./meta.yaml --luarocks-tree=./libs
+	tarantool dep.lua --meta-file ./meta.yaml --tree ./.rocks
+
+deppy:
+	python dep.py --meta-file=./meta.yaml --tree=./.rocks
 
 rpm:
-	rpmbuild -ba --define="SRC_DIR $PWD" rpm/{{__appname__}}.spec
+	rpmbuild -ba --define="SRC_DIR ${PWD}" rpm/{{__appname__}}.spec

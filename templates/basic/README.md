@@ -1,1 +1,0 @@
-# Basic Tarantool application template

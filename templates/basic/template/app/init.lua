@@ -1,11 +1,29 @@
-local conf = require('config')
+local conf = require 'config'
+local log = require 'log'
 
 box.once('access:v1', function()
-	box.schema.user.grant('guest', 'read,write,execute', 'universe')
+    box.schema.user.grant('guest', 'read,write,execute', 'universe')
+    -- Uncomment this to create user {{__appname__}}_user
+    -- box.schema.user.create('{{__appname__}}_user', { password = '{{__appname__}}_pass' })
+    -- box.schema.user.grant('{{__appname__}}_user', 'read,write,execute', 'universe')
 end)
 
-local {{__appname__}} = require('{{__appname__}}')
-package.reload:register({{__appname__}})
-rawset(_G, '{{__appname__}}', {{__appname__}})
+local app = {
+    mod1 = require 'mod1',
+}
 
-{{__appname__}}.start(conf.get('app'))
+function app.init(config)
+    log.info('app "{{__appname__}}" init')
+
+    for k, mod in pairs(app) do if type(mod) == 'table' and mod.init ~= nil then mod.init(config) end end
+end
+
+function app.destroy()
+    log.info('app "{{__appname__}}" destroy')
+
+    for k, mod in pairs(app) do if type(mod) == 'table' and mod.destroy ~= nil then mod.destroy() end end
+end
+
+package.reload:register(app)
+rawset(_G, 'app', app)
+return app

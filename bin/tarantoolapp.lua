@@ -1,8 +1,8 @@
-if not box then
+if _TARANTOOL == nil then
 	os.exit(os.execute("tarantool "..arg[0].." "..table.concat(arg, ' ')))
 end
 require 'strict'.on()
-package.path = package.path..';../?.lua'
+package.path = '../?.lua;'..package.path
 
 local function dump(x)
 	local j = require'yaml'.new()
@@ -13,6 +13,7 @@ local function dump(x)
 end
 
 local util = require 'tarantoolapp.util'
+local datafile = require 'datafile'
 local fio = require 'fio'
 
 local info = {}
@@ -64,4 +65,4 @@ if is_help then
 	os.exit(1)
 end
 
-command.run(info)
+command.run(info, util.table_slice(arg, 2))

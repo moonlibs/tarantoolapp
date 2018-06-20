@@ -1,5 +1,5 @@
-local tap = require('tap')
-local tnt = require('t.tnt')
+local tap = require 'tap'
+local tnt = require 't.tnt'
 tnt.cfg{}
 
 local test = tap.test("{{__appname__}}")

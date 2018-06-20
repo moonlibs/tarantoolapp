@@ -1,4 +1,4 @@
-local fio = require('fio')
+local fio = require 'fio'
 
 local function merge_tables(t, ...)
 	for _, tt in ipairs({...}) do
@@ -43,7 +43,7 @@ end
 
 
 local function get_workdir(workdir, create_if_not_exist)
-	local fileio = require('tarantoolapp.fileio')
+	local fileio = require 'tarantoolapp.fileio'
 	
 	if create_if_not_exist == nil then
 		create_if_not_exist = false
@@ -89,6 +89,20 @@ local function dump(x)
 	return j.encode(x)
 end
 
+local function fprint(s, ...)
+	return print(string.format(s, ...))
+end
+
+local function table_slice(tbl, first, last, step)
+	local sliced = {}
+  
+	for i = first or 1, last or #tbl, step or 1 do
+	  sliced[#sliced+1] = tbl[i]
+	end
+  
+	return sliced
+end
+
 return {
 	merge_tables = merge_tables,
 	copy_tabledict = copy_tabledict,
@@ -98,4 +112,6 @@ return {
 	get_workdir = get_workdir,
 	pathinfo = pathinfo,
 	dump = dump,
+	fprint = fprint,
+	table_slice = table_slice,
 }
