@@ -41,7 +41,7 @@ if is_help then
 	table.remove(arg,1,1)
 end
 
-if args[1] == nil then
+if arg[1] == nil then
 	util.errorf("Command not specified. Run tarantoolapp <command> <args>")
 end
 
