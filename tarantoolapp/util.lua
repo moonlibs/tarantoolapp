@@ -44,25 +44,25 @@ end
 
 local function get_workdir(workdir, create_if_not_exist)
 	local fileio = require 'tarantoolapp.fileio'
-	
+
 	if create_if_not_exist == nil then
 		create_if_not_exist = false
 	end
-	
+
 	if not isroot(workdir) then
 		local cur = fio.cwd()
-		
+
 		if workdir == '.' then
 			workdir = cur
 		else
 			workdir = fio.abspath(fio.pathjoin(cur, workdir))
 		end
 	end
-	
+
 	if create_if_not_exist and not fileio.exists(workdir) then
 		fileio.mkdir(workdir)
 	end
-	
+
 	return workdir
 end
 
@@ -89,17 +89,22 @@ local function dump(x)
 	return j.encode(x)
 end
 
-local function fprint(s, ...)
+local function printf(s, ...)
 	return print(string.format(s, ...))
+end
+
+local function errorf(s, ...)
+	printf(s, ...)
+	os.exit(1)
 end
 
 local function table_slice(tbl, first, last, step)
 	local sliced = {}
-  
+
 	for i = first or 1, last or #tbl, step or 1 do
 	  sliced[#sliced+1] = tbl[i]
 	end
-  
+
 	return sliced
 end
 
@@ -112,6 +117,7 @@ return {
 	get_workdir = get_workdir,
 	pathinfo = pathinfo,
 	dump = dump,
-	fprint = fprint,
+	printf = printf,
+	errorf = errorf,
 	table_slice = table_slice,
 }

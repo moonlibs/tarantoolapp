@@ -41,11 +41,15 @@ if is_help then
 	table.remove(arg,1,1)
 end
 
+if args[1] == nil then
+	util.errorf("Command not specified. Run tarantoolapp <command> <args>")
+end
+
 local command = commands.load(arg[1])
 if not command then
-	print(string.format("Command %s not found. List of available commands:", arg[1]))
+	util.printf("Command %s not found. List of available commands:", arg[1])
 	for name,cmd in pairs( commands.list() ) do
-		print(string.format("%s - %s", name, cmd.description and cmd.description(info) or '' ))
+		util.printf("%s - %s", name, cmd.description and cmd.description(info) or '' )
 	end
 	os.exit(1)
 end

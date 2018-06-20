@@ -20,16 +20,16 @@ local function merge_opts(opts, default_opts)
 			opts[k] = v
 		end
 	end
-	
+
 	return opts
 end
 
 local function render(s, opts)
 	local template_opts = {}
-	
+
 	s = string.gsub(s, "{{__appname__}}", opts.appname)
 	s = string.gsub(s, "{{__version__}}", opts.version)
-	
+
 	for k, v in pairs(opts) do
 		s = string.gsub(s, "{{" .. k .. "}}", v)
 	end
@@ -40,7 +40,7 @@ end
 local function render_name(filepath, opts)
 	local filename = fio.basename(filepath)
 	local filedir = fio.dirname(filepath)
-	
+
 	local new_filename = render(filename, opts)
 	local new_filepath = fio.pathjoin(filedir, new_filename)
 	fio.rename(filepath, new_filepath)
@@ -51,14 +51,14 @@ end
 local function render_file(filepath, opts)
 	local s = fileio.read_file(filepath)
 	local new_s = render(s, opts)
-	
+
 	local src_mode = fio.stat(filepath).mode
-	
+
 	local fh = fio.open(filepath, {'O_WRONLY', 'O_TRUNC'}, src_mode)
 	if not fh then
 		error(string.format("Failed to open file %s: %s", filepath, errno.strerror()))
 	end
-	
+
 	fh:write(new_s)
 	fh:close()
 end
@@ -69,22 +69,22 @@ local function get_template(info, template)
 	local template_rootdir = fio.pathjoin(templates_dir, template)
 	local template_src = fio.pathjoin(template_rootdir, 'template')
 	local template_config_path = fio.pathjoin(template_rootdir, 'config.yaml')
-	
+
 	if not fileio.exists(template_rootdir) then
 		error(string.format("Template '%s' not found", template))
 	end
-	
+
 	if not fileio.exists(template_src) then
 		error(string.format("Template '%s' is misconfigured: `template` folder not found", template))
 	end
-	
+
 	local template_config = nil
 	local template_options = nil
 	if fileio.exists(template_config_path) then
 		template_config = yaml.decode(fileio.read_file(template_config_path))
 		template_options = template_config.options
 	end
-	
+
 	return {
 		root = template_rootdir,
 		src = template_src,
@@ -112,6 +112,11 @@ end
 
 local function run(info, args)
 	local appname = args[1]
+
+	if appname == nil then
+		util.errorf('[create] appname must be specified')
+	end
+
 	table.remove(args, 1, 1)
 
 	local parsed_args = {
@@ -119,36 +124,35 @@ local function run(info, args)
         ['--path']     = fio.pathjoin('.', appname),
 	}
 	if #args % 2 ~= 0 then
-		error('Uneven args')
+		util.errorf('[create] Uneven args')
 	end
 
     for i = 1,#args/2 do parsed_args[ args[i*2-1] ] = args[i*2] end
 
 	local opts = {}
 	if appname == nil then
-		error('app name must be provided as the 1st argument as tarantoolapp create <NAME>')
+		util.errorf('app name must be provided as the 1st argument as tarantoolapp create <NAME>')
 	end
 	opts.template = parsed_args['--template']
 	opts.appname = appname
 
 	local path = fio.abspath(parsed_args['--path'])
 	if fileio.exists(path) then
-		error(string.format('Application "%s" already exists under path %s', appname, path))
+		util.errorf('Application "%s" already exists under path %s', appname, path)
 	end
-	
+
 	opts = merge_opts(opts, default_opts)
-	
+
 	local templ = get_template(info, opts.template)
 	if templ.options ~= nil then
 		merge_opts(default_opts, templ.options)
 		merge_opts(opts, default_opts)
 	end
-	
-	util.fprint("Using %s template in working directory %s", opts.template, path)
+
+	util.printf("Using %s template in working directory %s", opts.template, path)
 	if not fileio.exists(path) then
 		if not fio.mktree(path) then
-            util.fprint('Error while creating %s: %s', path, errno.strerror())
-            os.exit(1)
+            util.errorf('Error while creating %s: %s', path, errno.strerror())
         end
 	end
 	fileio.copydir(templ.src, path)
@@ -160,8 +164,8 @@ local function run(info, args)
 		end
 		render_name(fpath, opts)
 	end
-	
-	util.fprint('Application "%s" structure is created in: %s', opts.appname, path)
+
+	util.printf('Application "%s" structure is created in: %s', opts.appname, path)
 end
 
 

@@ -8,7 +8,7 @@ local yaml = require 'yaml'
 local cfg
 
 
-local function fprint(f, ...)
+local function printf(f, ...)
     print(string.format('[%s] ' .. f, cfg.name, ...))
 end
 
@@ -49,17 +49,17 @@ local function ensure_rocksservers(path)
         local data = f:read(f:stat().size)
         f:close()
         if data:match('rocks%.tarantool%.org') and data:match('rocks%.moonscript%.org') then
-            fprint('Already have proper rocks servers')
+            printf('Already have proper rocks servers')
             return
         end
     else
         local directory = fio.dirname(path)
         if not fio.mktree(directory) then
-            fprint('Error while creating %s: %s', directory, errno.strerror())
+            printf('Error while creating %s: %s', directory, errno.strerror())
             os.exit(1)
         end
     end
-    fprint("Patch %s with proper rocks servers", path)
+    printf("Patch %s with proper rocks servers", path)
     local fh = fio.open(path, {'O_CREAT', 'O_APPEND', 'O_RDWR'}, 0664)
     fh:write('\nrocks_servers = {[[http://rocks.tarantool.org/]], [[https://rocks.moonscript.org]]}\n')
     fh:close()
@@ -68,7 +68,7 @@ end
 
 local function execute(cmd)
     local raw_cmd = table.concat(cmd, ' ')
-    fprint("%s...", raw_cmd)
+    printf("%s...", raw_cmd)
     local res = os.execute(raw_cmd)
     if res ~= 0 then
         error(string.format('[%s] %s failed', cfg.name, raw_cmd))
@@ -148,24 +148,24 @@ local function main()
 
     ensure_rocksservers(args['--luarocks-config'])
 
-    fprint('Installing dependencies...')
+    printf('Installing dependencies...')
     local deps = cfg.deps or {}
     local tnt_deps = cfg.tnt_deps or cfg.tntdeps or {}
     local local_deps = cfg.local_deps or cfg.localdeps or {}
 
     if only_sections == nil or only_sections.deps then
         for _, dep in ipairs(deps) do
-            fprint("Installing dep '%s'", dep)
+            printf("Installing dep '%s'", dep)
             luarocks_install(dep, tree)
-            fprint("Installed dep '%s'\n\n", dep)
+            printf("Installed dep '%s'\n\n", dep)
         end
     end
 
     if only_sections == nil or only_sections.tntdeps or only_sections.tnt_deps then
         for _, dep in ipairs(tnt_deps) do
-            fprint("Installing tarantool dep '%s'", dep)
+            printf("Installing tarantool dep '%s'", dep)
             tarantoolctl_install(dep, tree)
-            fprint("Installed tarantool dep '%s'\n\n", dep)
+            printf("Installed tarantool dep '%s'\n\n", dep)
         end
     end
 
@@ -180,22 +180,22 @@ local function main()
             else
                 dep_root = fio.dirname(dep)
             end
-            fprint("Installing local dep '%s' with root at '%s'", dep, dep_root)
+            printf("Installing local dep '%s' with root at '%s'", dep, dep_root)
             dep = fio.abspath(dep)
             dep_root = fio.abspath(dep_root)
 
             fio.chdir(dep_root) -- local rocks must be installed from within the project root
             local ok, res = pcall(luarocks_remove, dep, tree)
             if not ok then
-                fprint(res)
+                printf(res)
             end
 
             luarocks_make(dep, tree)
             fio.chdir(cwd)
-            fprint("Installed local dep '%s'\n\n", dep)
+            printf("Installed local dep '%s'\n\n", dep)
         end
     end
-    fprint('Done.')
+    printf('Done.')
 end
 
 xpcall(main, function(err)
