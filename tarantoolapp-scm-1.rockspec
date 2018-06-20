@@ -2,7 +2,7 @@ package = 'tarantoolapp'
 version = 'scm-1'
 
 source  = {
-    url    = 'https://github.com/moonlibs/tarantoolapp';
+    url    = 'git://github.com/moonlibs/tarantoolapp';
     branch = 'master';
 }
 
@@ -14,26 +14,26 @@ description = {
 }
 
 dependencies = {
-    'lua >= 5.1';
-    'datafile';
-    -- 'lua-resty-template ~> 1.9';
+    'lua >= 5.1',
+    'datafile',
+    -- 'lua-resty-template ~> 1.9'
 }
 
 
 build = {
-    type = 'builtin';
-    copy_directories = {'templates'};
+    type = 'builtin',
+    copy_directories = {'templates'},
     modules = {
-        ['tarantoolapp.cli']    = 'tarantoolapp/cli.lua';
-        ['tarantoolapp.getopt']    = 'tarantoolapp/getopt.lua';
-        ['tarantoolapp.commands'] = 'tarantoolapp/commands.lua';
-        ['tarantoolapp.commands.create'] = 'tarantoolapp/commands/create.lua';
-        ['tarantoolapp.fileio'] = 'tarantoolapp/fileio.lua';
-        ['tarantoolapp.util'] = 'tarantoolapp/util.lua';
-    };
+        ['tarantoolapp.cli']             = 'tarantoolapp/cli.lua',
+        ['tarantoolapp.getopt']          = 'tarantoolapp/getopt.lua',
+        ['tarantoolapp.commands']        = 'tarantoolapp/commands.lua',
+        ['tarantoolapp.commands.create'] = 'tarantoolapp/commands/create.lua',
+        ['tarantoolapp.fileio']          = 'tarantoolapp/fileio.lua',
+        ['tarantoolapp.util']            = 'tarantoolapp/util.lua'
+    },
     install = {
         bin = {
-            ['tarantoolapp'] = 'bin/tarantoolapp.lua';
+            ['tarantoolapp'] = 'bin/tarantoolapp.lua'
         };
         --conf = {
         --    ['tarantoolapp.conf'] = 'tarantoolapp.conf';
