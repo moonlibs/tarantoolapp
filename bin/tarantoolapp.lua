@@ -1,6 +1,8 @@
 if _TARANTOOL == nil then
 	os.exit(os.execute("tarantool "..arg[0].." "..table.concat(arg, ' ')))
 end
+print('Tarantool version: ' .. _TARANTOOL)
+
 require 'strict'.on()
 package.path = '../?.lua;'..package.path
 
@@ -69,4 +71,12 @@ if is_help then
 	os.exit(1)
 end
 
-command.run(info, util.table_slice(arg, 2))
+xpcall(
+	function()
+		command.run(info, util.table_slice(arg, 2))
+	end,
+	function(err)
+		print(err .. '\n' .. debug.traceback())
+		os.exit(1)
+	end
+)

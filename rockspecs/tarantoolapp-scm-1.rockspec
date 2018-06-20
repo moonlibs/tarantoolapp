@@ -28,6 +28,7 @@ build = {
         ['tarantoolapp.getopt']          = 'tarantoolapp/getopt.lua',
         ['tarantoolapp.commands']        = 'tarantoolapp/commands.lua',
         ['tarantoolapp.commands.create'] = 'tarantoolapp/commands/create.lua',
+        ['tarantoolapp.commands.dep']    = 'tarantoolapp/commands/dep.lua',
         ['tarantoolapp.fileio']          = 'tarantoolapp/fileio.lua',
         ['tarantoolapp.util']            = 'tarantoolapp/util.lua'
     },

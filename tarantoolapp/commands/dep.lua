@@ -1,9 +1,7 @@
-#! /usr/bin/env tarantool
-
-assert(_TARANTOOL ~= nil, 'dep.lua must be run by tarantool')
-
 local fio = require 'fio'
 local yaml = require 'yaml'
+
+local util = require 'tarantoolapp.util'
 
 local cfg
 
@@ -108,35 +106,54 @@ local luarocks_remove = _gencmd(cmd_luarocks, 'remove')
 local luarocks_make = _gencmd(cmd_luarocks, 'make')
 local tarantoolctl_install = _gencmd(cmd_tarantoolctl, 'install')
 
+local function description(info)
+	return "Install dependencies"
+end
 
-local function main()
-    print('Tarantool version: ' .. _TARANTOOL)
+local function help(info)
+	-- TODO: parse getopt, extract template name
+	-- TODO: call get_template(info, opts.template)
+	-- TODO: read extra opts and add them to stdout
+	return "Options:\n"
+		.."\t--luarocks-config CONFIG        -  path to luarocks config (default is $HOME/.luarocks/config.lua)\n"
+		.."\t--meta-file META_FILE           -  path to meta.yaml file (default is ./meta.yaml)\n"
+		.."\t--tree TREE                     -  path to directory that will hold the dependencies (default is ./.rocks)\n"
+		.."\t--only SECTION1[,SECTION2,...]  -  install only these sections (deps, tntdeps or localdeps)\n"
+end
 
+local function run(info, args)
     local luaroot = debug.getinfo(1, 'S')
     local source = fio.abspath(luaroot.source:match('^@(.+)'))
     local appname = fio.basename(fio.dirname(source))
 
-    local args = {
+    local parsed_args = {
         ['--luarocks-config'] = fio.pathjoin(os.getenv('HOME'), '.luarocks', 'config.lua'),
         ['--meta-file']       = './meta.yaml',
         ['--tree']            = '.rocks',
         ['--only']            = '',
     }
 
-    for i = 1,#arg/2 do args[ arg[i*2-1] ] = arg[i*2] end
+    if #args % 2 ~= 0 then
+		util.errorf('[create] Uneven args')
+	end
 
-    local meta_path = args['--meta-file']
+    for i = 1,#args/2 do parsed_args[ args[i*2-1] ] = args[i*2] end
+
+    local meta_path = parsed_args['--meta-file']
     assert(meta_path ~= '', 'meta file is required')
 
-    print('Using the following options:\n' .. yaml.encode(args))
+    print('Using the following options:\n' .. yaml.encode(parsed_args))
 
     local meta_file = fio.open(fio.abspath(meta_path))
+    if meta_file == nil then
+        util.errorf('Meta file %s does not exist', fio.abspath(meta_path))
+    end
     local metatext = meta_file:read(meta_file:stat().size)
-    local tree = fio.abspath(args['--tree'])
+    local tree = fio.abspath(parsed_args['--tree'])
     local only_sections
-    if args['--only'] ~= '' then
+    if parsed_args['--only'] ~= '' then
         only_sections = {}
-        for _, s in ipairs(_string_split(args['--only'])) do
+        for _, s in ipairs(_string_split(parsed_args['--only'])) do
             only_sections[s] = true
         end
     end
@@ -146,7 +163,7 @@ local function main()
     cfg.name = cfg.name or appname
     assert(cfg.name, 'Name must be defined')
 
-    ensure_rocksservers(args['--luarocks-config'])
+    ensure_rocksservers(parsed_args['--luarocks-config'])
 
     printf('Installing dependencies...')
     local deps = cfg.deps or {}
@@ -198,7 +215,8 @@ local function main()
     printf('Done.')
 end
 
-xpcall(main, function(err)
-    print(err .. '\n' .. debug.traceback())
-    os.exit(1)
-end)
+return {
+	description = description,
+	help = help,
+	run = run,
+}
