@@ -10,24 +10,53 @@ require 'strict'.on()
 require 'package.reload'
 local fio = require 'fio'
 
+local INSTANCE = fio.basename(arg[0], '.lua')
+rawset(_G, 'INSTANCE_NAME', INSTANCE)
+
 local conf_path = os.getenv('CONF')
 if conf_path == nil then
-    conf_path = '/etc/{{__appname__}}/conf.lua'
+    conf_path = '/etc/{{__appname__}}/conf_storage.lua'
 end
-local conf = require('config')(conf_path)
+local conf = require('config')({
+    file = conf_path,
+    boxcfg = function() end
+})
 
-local app = require 'app'
+local box_cfg = conf.get('box')
+box_cfg.sharding = conf.get('sharding')
+
+local myuuid
+for _, replicaset in pairs(box_cfg.sharding) do
+    for uuid, replica in pairs(replicaset.replicas) do
+        if replica.name == INSTANCE then
+            myuuid = uuid
+        end
+    end
+end
+assert(myuuid ~= nil, 'Did not found myuuid')
+
+vshard = require 'vshard'
+vshard.storage.cfg(box_cfg, myuuid)
+
+local app = require 'app.storage'
 if app ~= nil and app.init ~= nil then
+    local tb
     local ok, res = xpcall(
         function()
             return app.init(conf.get('app'))
         end,
         function(err)
-            print(err .. '\n' .. debug.traceback())
-            os.exit(1)
+            tb = debug.traceback();
+            return err
         end
     )
+
+    if not ok then
+        print(res .. '\n' .. tb)
+        os.exit(1)
+    end
 end
+rawset(_G, 'app', app)
 
 if tonumber(os.getenv('FG')) == 1 then
     if pcall(require('console').start) then

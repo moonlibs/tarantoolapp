@@ -1,0 +1,7 @@
+name: {{__appname__}}
+version: {{__version__}}
+deps:
+  - https://raw.githubusercontent.com/moonlibs/config/master/rockspecs/config-scm-2.rockspec
+  - https://raw.githubusercontent.com/moonlibs/package-reload/master/package.reload-scm-1.rockspec
+tntdeps:
+  - https://raw.githubusercontent.com/tarantool/vshard/master/vshard-scm-1.rockspec
