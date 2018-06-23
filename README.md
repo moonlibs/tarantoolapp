@@ -27,7 +27,7 @@ $ tarantoolapp create NAME [--template TEMPLATE] [--path PATH]
 ### Parameters to `tarantoolapp create`:
 
 * `NAME` - Desired application name
-* `TEMPLATE` - Template to use (currently available: `basic`, `luakit`, `ckit`)
+* `TEMPLATE` - Template to use (currently available: `basic`, `luakit`, `ckit`, `vshard`)
 * `PATH` - custom path where project will be created. If not specified the project is created in the current working directory under `NAME` folder
 
 ## Install dependencies
