@@ -9,7 +9,7 @@ LUA_PATH="${ROOT}/?.lua;\
 ${ROOT}/?/init.lua;\
 ${ROOT}/app/?.lua;\
 ${ROOT}/app/?/init.lua;\
-${ROOT}/.rocks/share/lua/5.1/?.lua;
+${ROOT}/.rocks/share/lua/5.1/?.lua;\
 ${ROOT}/.rocks/share/lua/5.1/?/init.lua;;"
 
 LUA_CPATH="${ROOT}/.rocks/lib/lua/5.1/?.so;\
