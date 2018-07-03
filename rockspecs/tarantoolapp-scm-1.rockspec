@@ -16,7 +16,8 @@ description = {
 dependencies = {
     'lua >= 5.1',
     'datafile',
-    -- 'lua-resty-template ~> 1.9'
+    'lua-resty-template ~> 1.9',
+    -- 'alt-getopt',
 }
 
 

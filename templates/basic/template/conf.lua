@@ -13,5 +13,7 @@ box = {
 }
 
 app = {
-
+    {% if use_spacer then %}
+    migrations = './migrations'
+    {% end %}
 }

@@ -1,5 +1,6 @@
 local errno = require 'errno'
 local fio = require 'fio'
+local compat = require 'tarantoolapp.compat'
 local util = require 'tarantoolapp.util'
 
 local fileio = {}
@@ -126,10 +127,7 @@ function fileio.copydir(src, dest)
 		local p = fio.pathjoin(dest, relative_path)
 
 		if fmode == 'directory' then
-			local ok = fio.mkdir(p, folder_perms)
-			if not ok then
-				error(string.format("Could not create folder %s: %s", p, errno.strerror()))
-			end
+			fileio.mkdir(p, folder_perms)
 		else
 			if fio.lstat(fpath):is_link() then
 				fio.symlink(fio.readlink(fpath), p)
@@ -147,12 +145,21 @@ function fileio.mkdir(path)
 	end
 end
 
+fileio.path = {
+	is_dir = function(path)
+		if compat.check_version({1, 9}, _TARANTOOL) then
+			return fio.path.is_dir(path)
+		end
 
-function fileio.exists(path)
-	if _TARANTOOL >= "1.9" then
-        return fio.path.exists(path)
-    end
-    return fio.stat(path) ~= nil
-end
+		local fs = fio.stat(path)
+		return fs ~= nil and fs:is_dir() or false
+	end,
+	exists = function(path)
+		if compat.check_version({1, 9}, _TARANTOOL) then
+			return fio.path.exists(path)
+		end
+		return fio.stat(path) ~= nil
+	end
+}
 
 return fileio

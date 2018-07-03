@@ -15,6 +15,13 @@ local app = {
 function app.init(config)
     log.info('app "{{__appname__}}" init')
 
+    {% if use_spacer then %}
+    box.spacer = require 'spacer'({
+        migrations = config.migrations
+    })
+    require 'schema'
+    {% end %}
+
     for k, mod in pairs(app) do if type(mod) == 'table' and mod.init ~= nil then mod.init(config) end end
 end
 

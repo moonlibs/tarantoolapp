@@ -9,6 +9,14 @@ local function merge_tables(t, ...)
 	return t
 end
 
+local function merge_tables_dicts(t, t2)
+	for k, v in pairs(t2) do
+		t[k] = v
+	end
+
+	return t
+end
+
 
 local function copy_tabledict(t)
 	local t2 = {}
@@ -38,7 +46,10 @@ local function abspath(p,b)
 	if isroot(p) then
 		return p
 	end
-	return fio.abspath(fio.pathjoin(b, p))
+	if b ~= nil then
+		p = fio.pathjoin(b, p)
+	end
+	return fio.abspath(p)
 end
 
 
@@ -59,7 +70,7 @@ local function get_workdir(workdir, create_if_not_exist)
 		end
 	end
 
-	if create_if_not_exist and not fileio.exists(workdir) then
+	if create_if_not_exist and not fileio.path.exists(workdir) then
 		fileio.mkdir(workdir)
 	end
 
@@ -110,6 +121,7 @@ end
 
 return {
 	merge_tables = merge_tables,
+	merge_tables_dicts = merge_tables_dicts,
 	copy_tabledict = copy_tabledict,
 	isroot = isroot,
 	slashends = slashends,

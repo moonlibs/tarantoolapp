@@ -1,6 +1,7 @@
 local fio = require 'fio'
 local yaml = require 'yaml'
 
+local fileio = require 'tarantoolapp.fileio'
 local util = require 'tarantoolapp.util'
 
 local cfg
@@ -8,23 +9,6 @@ local cfg
 
 local function printf(f, ...)
     print(string.format('[%s] ' .. f, cfg.name, ...))
-end
-
-
-local function _is_dir(path)
-    if _TARANTOOL >= "1.9" then
-        return fio.path.is_dir(path)
-    end
-
-    local fs = fio.stat(path)
-    return fs ~= nil and fs:is_dir() or false
-end
-
-local function _exists(path)
-    if _TARANTOOL >= "1.9" then
-        return fio.path.exists(path)
-    end
-    return fio.stat(path) ~= nil
 end
 
 local function _string_split(s, sep)
@@ -38,11 +22,11 @@ end
 
 local function ensure_rocksservers(path)
     local dir = fio.dirname(path)
-    if not _is_dir(dir) then
-        fio.mkdir(dir)
+    if not fileio.path.is_dir(dir) then
+        fileio.mkdir(dir)
     end
 
-    if _exists(path) then
+    if fileio.path.exists(path) then
         local f = fio.open(path)
         local data = f:read(f:stat().size)
         f:close()

@@ -2,6 +2,7 @@ local datafile = require 'datafile'
 local errno = require 'errno'
 local fio = require 'fio'
 local yaml = require 'yaml'
+
 local fileio = require 'tarantoolapp.fileio'
 local util = require 'tarantoolapp.util'
 
@@ -25,15 +26,19 @@ local function merge_opts(opts, default_opts)
 end
 
 local function render(s, opts)
-	local template_opts = {}
+	require 'strict'.off()
+	local restytempl = require 'resty.template'
 
-	s = string.gsub(s, "{{__appname__}}", opts.appname)
-	s = string.gsub(s, "{{__version__}}", opts.version)
+	local context = {
+		__appname__ = opts.appname,
+		__version__ = opts.version,
+	}
+	context = util.merge_tables_dicts(context, opts)
 
-	for k, v in pairs(opts) do
-		s = string.gsub(s, "{{" .. k .. "}}", v)
-	end
-	return s
+	local t = restytempl.compile(s, 'no-cache', true)
+	local rendered = t(context)
+	require 'strict'.on()
+	return rendered
 end
 
 
@@ -69,27 +74,55 @@ local function get_template(info, template)
 	local template_rootdir = fio.pathjoin(templates_dir, template)
 	local template_src = fio.pathjoin(template_rootdir, 'template')
 	local template_config_path = fio.pathjoin(template_rootdir, 'config.yaml')
+	local hooks = {
+		post_gen = fio.pathjoin(template_rootdir, 'hooks', 'post_gen.lua')
+	}
 
-	if not fileio.exists(template_rootdir) then
+	if not fileio.path.exists(template_rootdir) then
 		util.errorf("Template '%s' not found", template)
 	end
 
-	if not fileio.exists(template_src) then
+	if not fileio.path.exists(template_src) then
 		util.errorf("Template '%s' is misconfigured: `template` folder not found", template)
 	end
 
 	local template_config = nil
 	local template_options = nil
-	if fileio.exists(template_config_path) then
+	if fileio.path.exists(template_config_path) then
 		template_config = yaml.decode(fileio.read_file(template_config_path))
 		template_options = template_config.options
+	end
+
+	local compiled_hooks = {}
+	for k, v in pairs(hooks) do
+		if fileio.path.exists(v) then
+			local v, err = loadfile(v)
+			if v == nil then
+				error(string.format("Error compiling hook %s: \n%s", k, err))
+			end
+			local wrapper = (function(v)
+				return function(project_opts)
+					local context = {
+						require = require,
+						project_opts = project_opts,
+						_TARANTOOL = _TARANTOOL,
+						print = print,
+					}
+					setfenv(v, context)
+					return v()
+				end
+			end)(v)
+
+			compiled_hooks[k] = wrapper
+		end
 	end
 
 	return {
 		root = template_rootdir,
 		src = template_src,
 		config = template_config,
-		options = template_options
+		options = template_options,
+		hooks = compiled_hooks,
 	}
 end
 
@@ -137,7 +170,7 @@ local function run(info, args)
 	opts.appname = appname
 
 	local path = fio.abspath(parsed_args['--path'])
-	if fileio.exists(path) then
+	if fileio.path.exists(path) then
 		util.errorf('Project "%s" already exists under path %s', appname, path)
 	end
 
@@ -149,8 +182,10 @@ local function run(info, args)
 		merge_opts(opts, default_opts)
 	end
 
+	print(util.dump(opts))
+
 	util.printf("Using %s template in working directory %s", opts.template, path)
-	if not fileio.exists(path) then
+	if not fileio.path.exists(path) then
 		if not fio.mktree(path) then
             util.errorf('Error while creating %s: %s', path, errno.strerror())
         end
@@ -163,6 +198,13 @@ local function run(info, args)
 			render_file(fpath, opts)
 		end
 		render_name(fpath, opts)
+	end
+
+	if templ.hooks.post_gen then
+		local cwd = fio.cwd()
+		fio.chdir(path)
+		templ.hooks.post_gen(opts)
+		fio.chdir(cwd)
 	end
 
 	util.printf('Project "%s" structure is created in: %s', opts.appname, path)
