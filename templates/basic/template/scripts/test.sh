@@ -15,7 +15,7 @@ ${ROOT}/app/?.lua;\
 ${ROOT}/app/?/init.lua;\
 ;"
 
-SOEXT="$(${TARANTOOL} <<< print(jit.os == "OSX" and "dylib" or "so"))"
+SOEXT="$(${TARANTOOL} <<< 'print(jit.os == "OSX" and "dylib" or "so")')"
 
 LUA_CPATH="\
 ${ROOT}/.rocks/lib/lua/5.1/?.${SOEXT};\
