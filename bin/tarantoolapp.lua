@@ -1,5 +1,5 @@
 if _TARANTOOL == nil then
-	os.exit(os.execute("tarantool "..arg[0].." "..table.concat(arg, ' ')))
+	os.exit(os.execute("exec tarantool "..arg[0].." "..table.concat(arg, ' ')) == 0 and 0 or 1)
 end
 print('Tarantool version: ' .. _TARANTOOL)
 

@@ -51,10 +51,11 @@ end
 local function execute(cmd)
     local raw_cmd = table.concat(cmd, ' ')
     printf("%s...", raw_cmd)
-    local res = os.execute(raw_cmd)
+    local res = os.execute('exec ' .. raw_cmd)
     if res ~= 0 then
         error(string.format('[%s] %s failed', cfg.name, raw_cmd))
     end
+    return res
 end
 
 

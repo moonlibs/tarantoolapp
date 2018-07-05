@@ -44,16 +44,12 @@ Full command is:
 $ tarantoolapp dep [--meta-file META_FILE] [--tree TREE] [--luarocks-config LUAROCKS_CONFIG] [--only SECTION1[,SECTION2,...]]
 ```
 
-### Parameters to `tarantoolapp create`:
+### Parameters to `tarantoolapp dep`:
 
 * `META_FILE` - path to meta.yaml file (default is ./meta.yaml)
 * `TREE` - path to directory that will hold the dependencies (default is ./.rocks)
 * `LUAROCKS_CONFIG` - path to luarocks config (default is $HOME/.luarocks/config.lua)
 * `SECTION1,...` - install only these sections (deps, tntdeps or localdeps)
-
-### dep.lua commands
-* `tarantoolapp dep --meta-file ./meta.yaml` - installs deps from `meta.yaml` to the system
-* `tarantoolapp dep --meta-file ./meta.yaml --tree ./.rocks` - installs deps to a specified folder (ex. .rocks).
 
 
 ### meta.yaml
