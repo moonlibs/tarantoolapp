@@ -7,7 +7,13 @@ App starter for Tarantool application server
 tarantoolapp is a cli tool so it is better to install it globally to system:
 
 ```
-$ luarocks install https://raw.githubusercontent.com/moonlibs/tarantoolapp/master/rockspecs/tarantoolapp-scm-1.rockspec
+$ luarocks install tarantoolapp
+```
+
+Or to install most recent version
+
+```
+$ luarocks install --server=http://luarocks.org/dev tarantoolapp
 ```
 
 ## Bootstrap an application
