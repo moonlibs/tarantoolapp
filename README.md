@@ -21,14 +21,24 @@ $ tarantoolapp create myapp
 Full command is:
 
 ```
-$ tarantoolapp create NAME [--template TEMPLATE] [--path PATH]
+$ tarantoolapp create [-t <template>] [-p <path>]
+       [--description <description>] [--version <version>] [-h] <name>
 ```
 
 ### Parameters to `tarantoolapp create`:
 
-* `NAME` - Desired application name
-* `TEMPLATE` - Template to use (currently available: `basic`, `luakit`, `ckit`, `vshard`)
-* `PATH` - custom path where project will be created. If not specified the project is created in the current working directory under `NAME` folder
+* **`<name>`** - Desired project name
+* **`<template>`** - template to use. Available templates: (basic, luakit, ckit) (default: basic)
+* **`<path>`** - path to directory where to setup project (default is ./{your_project_name})
+* **`<description>`** - Project description (default: Tarantool App)
+* **`<version>`** - Project version (default: scm-1)
+
+There can be special options defined for a selected template, for example for a `basic` template:
+
+* **`<basic_use_spacer>`** - Use [spacer](https://github.com/igorcoding/tarantool-spacer) or not.
+
+These options are defined in a `templates/<template_name>/config.yaml` file and in command line are prefixed with a template name.
+
 
 ## Install dependencies
 
@@ -41,15 +51,17 @@ This command installs dependencies, specified in the `meta.yaml` file in current
 Full command is:
 
 ```
-$ tarantoolapp dep [--meta-file META_FILE] [--tree TREE] [--luarocks-config LUAROCKS_CONFIG] [--only SECTION1[,SECTION2,...]]
+$ tarantoolapp dep [-m <meta_file>] [-t <tree>]
+       [--luarocks-config <luarocks_config>] [-h]
+       [--only [<only>] ...]
 ```
 
 ### Parameters to `tarantoolapp dep`:
 
-* `META_FILE` - path to meta.yaml file (default is ./meta.yaml)
-* `TREE` - path to directory that will hold the dependencies (default is ./.rocks)
-* `LUAROCKS_CONFIG` - path to luarocks config (default is $HOME/.luarocks/config.lua)
-* `SECTION1,...` - install only these sections (deps, tntdeps or localdeps)
+* **`<meta_file>`** - path to meta.yaml file (default: ./meta.yaml)
+* **`<tree>`** - path to directory that will hold the dependencies (default: .rocks)
+* **`<luarocks_config>`** - path to luarocks config (default: $HOME/.luarocks/config.lua)
+* **`<only>`** - install only these sections (deps, tntdeps or localdeps). Separated with spaces (e.g. `--only deps tntdeps`)
 
 
 ### meta.yaml
@@ -62,8 +74,16 @@ $ tarantoolapp dep [--meta-file META_FILE] [--tree TREE] [--luarocks-config LUAR
     - `./local/path/to/package/package.rockspec` if `*.rockspec` file is in the package root
     - `./local/path/to/package/rockspecs/package.rockspec:./local/path/to/package` - specify the package root after the colon
 
-## Get help
+## Getting help
 
 ```
-$ tarantoolapp help <command>
+$ tarantoolapp -h
+```
+
+```
+$ tarantoolapp create -h
+```
+
+```
+$ tarantoolapp dep -h
 ```

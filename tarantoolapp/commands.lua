@@ -21,7 +21,7 @@ function M.load(name)
 	end
 end
 
-function M.list()
+function M.all()
 	local pathinfo = util.pathinfo()
 	for _,v in pairs(fio.glob(pathinfo.dir .. '/commands/*.lua')) do
 		local name = v:match('/([^/]+)%.lua')
@@ -36,8 +36,13 @@ function M.list()
 	return M.avail
 end
 
-return M
+function M.list()
+	local arr = {}
+	for k, v in pairs(M.all()) do
+		table.insert(arr, k)
+	end
 
--- print(util.dump(
--- 	fio.glob(pathinfo.dir .. '/commands/*.lua')
--- ))
+	return arr
+end
+
+return M

@@ -12,7 +12,7 @@ git:
 
 env:
     global:
-      - PRODUCT=tarantool-{{__appname__}}
+      - PRODUCT=tarantool-{{__name__}}
     matrix:
       - OS=el DIST=6
       - OS=el DIST=7

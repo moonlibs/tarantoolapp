@@ -3,9 +3,9 @@ local log = require 'log'
 
 box.once('access:v1', function()
     box.schema.user.grant('guest', 'read,write,execute', 'universe')
-    -- Uncomment this to create user {{__appname__}}_user
-    -- box.schema.user.create('{{__appname__}}_user', { password = '{{__appname__}}_pass' })
-    -- box.schema.user.grant('{{__appname__}}_user', 'read,write,execute', 'universe')
+    -- Uncomment this to create user {{__name__}}_user
+    -- box.schema.user.create('{{__name__}}_user', { password = '{{__name__}}_pass' })
+    -- box.schema.user.grant('{{__name__}}_user', 'read,write,execute', 'universe')
 end)
 
 local app = {
@@ -13,7 +13,7 @@ local app = {
 }
 
 function app.init(config)
-    log.info('app "{{__appname__}}" init')
+    log.info('app "{{__name__}}" init')
 
     {% if use_spacer then %}
     box.spacer = require 'spacer'({
@@ -26,7 +26,7 @@ function app.init(config)
 end
 
 function app.destroy()
-    log.info('app "{{__appname__}}" destroy')
+    log.info('app "{{__name__}}" destroy')
 
     for k, mod in pairs(app) do if type(mod) == 'table' and mod.destroy ~= nil then mod.destroy() end end
 end

@@ -1,4 +1,4 @@
-%define __distribution {{__appname__}}
+%define __distribution {{__name__}}
 %define __repo %{__distribution}
 
 %if %{__autobuild__}
@@ -7,14 +7,14 @@
 %define version {{__version__}}
 %endif
 %define release %(/bin/date +"%Y%m%d.%H%M")
-%define packagename {{__appname__}}
+%define packagename {{__name__}}
 
 %define app_dir /opt/%{__distribution}
 
 Name:           %{__distribution}
 Version:        %{version}
 Release:        %{release}
-Summary:        {{__appname__}}
+Summary:        {{__name__}}
 
 Group:          tarantool/db
 License:        proprietary
@@ -39,7 +39,7 @@ BuildRequires: luarocks
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
-{{__appname__}}
+{{__name__}}
 
 %prep
 %if %{?SRC_DIR:1}%{!?SRC_DIR:0}

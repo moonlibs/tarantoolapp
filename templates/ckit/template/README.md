@@ -1,8 +1,8 @@
 <a href="http://tarantool.org">
 	<img src="https://avatars2.githubusercontent.com/u/2344919?v=2&s=250" align="right">
 </a>
-<a href="https://travis-ci.org/tarantool/{{__appname__}}">
-	<img src="https://travis-ci.org/tarantool/{{__appname__}}.png?branch=master" align="right">
+<a href="https://travis-ci.org/tarantool/{{__name__}}">
+	<img src="https://travis-ci.org/tarantool/{{__name__}}.png?branch=master" align="right">
 </a>
 
 # C module template for Tarantool 1.6+
@@ -21,10 +21,10 @@ Use this template to create and publish a [Tarantool][] module written in C.
 ## Kit content
 
   * `./README.md` - this file
-  * `./{{__appname__}}/init.lua` - the Lua module itself, loaded with `require('{{__appname__}}')`
-  * `./{{__appname__}}/lib.c` - C module
-  * `./test/cki{{__appname__}}t.test.lua` - tests for the module
-  * `./{{__appname__}}-scm-1.rockspec` - a specification for the
+  * `./{{__name__}}/init.lua` - the Lua module itself, loaded with `require('{{__name__}}')`
+  * `./{{__name__}}/lib.c` - C module
+  * `./test/cki{{__name__}}t.test.lua` - tests for the module
+  * `./{{__name__}}-scm-1.rockspec` - a specification for the
     [tarantool/rocks][TarantoolRocks] repository
   * `./rpm/` - files to build an RPM package
   * `./debian/` - files to build a DEB package
@@ -38,32 +38,32 @@ Tarantool 1.6.5+ with header files (`tarantool`, `tarantool-dev` and
 
 ## Usage
 
-1. Implement your code in `./{{__appname__}}/`.
+1. Implement your code in `./{{__name__}}/`.
 
    You will have one or more *C modules*, which export their functions for
    API calls. Also, you may have *Lua modules*, which in their turn may
    re-export the C modules' functions for API calls.
 
-   As an example, see the following modules from the `{{__appname__}}` package:
-   * [{{__appname__}}/lib.c][CModule] - a C module. Here we have one internal function
-     (`{{__appname__}}_func()`) and export another function (`luaopen_{{__appname__}}_lib()`) which
-     uses `{{__appname__}}_func()`.
-   * [{{__appname__}}/init.lua][LuaCModule] - a Lua module. Here we load the C module
-     with `require('{{__appname__}}.lib')` and then re-export it as `cfunc` function for
+   As an example, see the following modules from the `{{__name__}}` package:
+   * [{{__name__}}/lib.c][CModule] - a C module. Here we have one internal function
+     (`{{__name__}}_func()`) and export another function (`luaopen_{{__name__}}_lib()`) which
+     uses `{{__name__}}_func()`.
+   * [{{__name__}}/init.lua][LuaCModule] - a Lua module. Here we load the C module
+     with `require('{{__name__}}.lib')` and then re-export it as `cfunc` function for
      API calls. Also, we have a Lua function (`func()`) that uses the
-     exported C function from `{{__appname__}}.lib`, and we export this Lua function as
+     exported C function from `{{__name__}}.lib`, and we export this Lua function as
      `func` function.
 
-   As a result, after we publish the `{{__appname__}}` package in step 7, Tarantool
+   As a result, after we publish the `{{__name__}}` package in step 7, Tarantool
    users will be able to load the package and call two functions:
-   * the C function `luaopen_{{__appname__}}_lib()` - with `require('{{__appname__}}.lib').func(args)`
-     or `require('{{__appname__}}').cfunc(args)`, and
-   * the Lua function `func()` - with `require('{{__appname__}}').func(args)`.
+   * the C function `luaopen_{{__name__}}_lib()` - with `require('{{__name__}}.lib').func(args)`
+     or `require('{{__name__}}').cfunc(args)`, and
+   * the Lua function `func()` - with `require('{{__name__}}').func(args)`.
 
 4. Add tests to `./test/mymodule.test.lua`:
 
     ```bash
-    prove -v ./test/{{__appname__}}.test.lua or ./test/{{__appname__}}.test.lua
+    prove -v ./test/{{__name__}}.test.lua or ./test/{{__name__}}.test.lua
     ```
 
 5. Update copyright and README files.
@@ -83,7 +83,7 @@ Tarantool 1.6.5+ with header files (`tarantool`, `tarantool-dev` and
     luarocks install --local mymodule-scm-1.rockspec
     ```
 
-    See an annotated rockspec example in [{{__appname__}}-scm-1.rockspec][CRockSpec].
+    See an annotated rockspec example in [{{__name__}}-scm-1.rockspec][CRockSpec].
 
 8. Push your rockspec and make a pull request to the
    [tarantool/rocks][TarantoolRocks] repository.

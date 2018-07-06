@@ -6,12 +6,10 @@ local yaml = require 'yaml'
 local fileio = require 'tarantoolapp.fileio'
 local util = require 'tarantoolapp.util'
 
-
 local default_opts = {
-	workdir = '.',
-	appname = 'testapp',
+	name = 'myapp',
 	version = 'scm-1',
-	description = 'TestApp',
+	description = 'Tarantool App',
 	template = 'basic'
 }
 
@@ -30,7 +28,7 @@ local function render(s, opts)
 	local restytempl = require 'resty.template'
 
 	local context = {
-		__appname__ = opts.appname,
+		__name__ = opts.name,
 		__version__ = opts.version,
 	}
 	context = util.merge_tables_dicts(context, opts)
@@ -68,8 +66,21 @@ local function render_file(filepath, opts)
 	fh:close()
 end
 
+local function list_templates()
+	local templates_dir = datafile.path('templates')
+	local dirs = fileio.listdir(templates_dir, nil, false)
+	local templates = {}
+	for _, el in ipairs(dirs) do
+		table.insert(templates, el.name)
+	end
+	return templates
+end
 
-local function get_template(info, template)
+
+local function get_template(template)
+	if template == nil then
+		return nil
+	end
 	local templates_dir = datafile.path('templates')
 	local template_rootdir = fio.pathjoin(templates_dir, template)
 	local template_src = fio.pathjoin(template_rootdir, 'template')
@@ -127,61 +138,90 @@ local function get_template(info, template)
 end
 
 
-local function description(info)
+local function description()
 	return "Create new application"
 end
 
+local function argparse(parser, cmd)
+	local templates = table.concat(list_templates(), ', ')
+	cmd:argument('name', 'Desired project name')
+	cmd:option('-t --template', string.format('template to use. Available templates: (%s)', templates))
+	   :default(default_opts.template)
+	cmd:option('-p --path', 'path to directory where to setup project (default is ./{your_project_name})')
+	cmd:option('--description', 'Project description')
+	   :default(default_opts.description)
+	cmd:option('--version', 'Project version')
+	   :default(default_opts.version)
+	cmd:add_help(false)
+end
 
-local function help(info)
-	-- TODO: parse getopt, extract template name
-	-- TODO: call get_template(info, opts.template)
-	-- TODO: read extra opts and add them to stdout
-	return "Options:\n"
-		.."\t NAME                        -  project name\n"
-		.."\t--template TEMPLATE          -  template to use (default is basic). Available templates: (basic, luakit, ckit)\n"
-		.."\t--path PATH                  -  path to directory where to setup project (default is ./NAME)\n"
+local function argparse_extra(parser, cmd)
+	local ok, args, err = parser:pparse_known_anything()
+	if args.template == nil then
+		args.template = default_opts.template
+	end
+	-- local args = {}
+	local templ_options = {}
+	local templ = get_template(args.template)
+	if templ and templ.options then
+		for k, v in pairs(templ.options) do
+			local name = '--'..args.template..'_'..k
+			local o
+			if type(v) == 'boolean' then
+				o = cmd:option(name, 'y/n')
+				       :default(v)
+				       :convert(function(val) return val == 'y' or val == 'Y' end)
+			elseif type(v) == 'number' then
+				o = cmd:option(name, 'number value')
+				       :default(v)
+				       :convert(tonumber)
+			elseif type(v) == 'string' then
+				o = cmd:option(name, 'string value')
+				       :default(v)
+				       :convert(tostring)
+			else
+				util.errorf('unknown type for template option: %s', type(v))
+			end
+
+			if o ~= nil then
+				table.insert(templ_options, o)
+			end
+		end
+	end
+	if #templ_options > 0 then
+		cmd:group("Template-specific options", unpack(templ_options))
+	end
+	cmd:add_help(true)
 end
 
 
-local function run(info, args)
-	local appname = args[1]
-
-	if appname == nil then
-		util.errorf('[create] project name must be specified')
+local function run(args)
+	if args.path == nil then
+		args.path = './'..args.name
 	end
-
-	table.remove(args, 1, 1)
-
-	local parsed_args = {
-        ['--template'] = 'basic',
-        ['--path']     = fio.pathjoin('.', appname),
-	}
-	if #args % 2 ~= 0 then
-		util.errorf('[create] Uneven args')
-	end
-
-    for i = 1,#args/2 do parsed_args[ args[i*2-1] ] = args[i*2] end
 
 	local opts = {}
-	if appname == nil then
-		util.errorf('project name must be provided as the 1st argument as tarantoolapp create <NAME>')
-	end
-	opts.template = parsed_args['--template']
-	opts.appname = appname
+	opts.template = args.template
+	opts.name = args.name
 
-	local path = fio.abspath(parsed_args['--path'])
+	local path = fio.abspath(args.path)
 	if fileio.path.exists(path) then
-		util.errorf('Project "%s" already exists under path %s', appname, path)
+		util.errorf('Project "%s" already exists under path %s', args.name, path)
 	end
 
 	opts = merge_opts(opts, default_opts)
-
-	local templ = get_template(info, opts.template)
+	local templ = get_template(opts.template)
 	if templ.options ~= nil then
+		for k, v in pairs(args) do -- searching for template-specific options
+			local prefix = opts.template .. '_'
+			if string.startswith(k, prefix) then
+				k = string.gsub(k, prefix, '')
+			end
+			opts[k] = v
+		end
 		merge_opts(default_opts, templ.options)
 		merge_opts(opts, default_opts)
 	end
-
 	print(util.dump(opts))
 
 	util.printf("Using %s template in working directory %s", opts.template, path)
@@ -207,12 +247,13 @@ local function run(info, args)
 		fio.chdir(cwd)
 	end
 
-	util.printf('Project "%s" structure is created in: %s', opts.appname, path)
+	util.printf('Project "%s" structure is created in: %s', opts.name, path)
 end
 
 
 return {
 	description = description,
-	help = help,
+	argparse = argparse,
+	argparse_extra = argparse_extra,
 	run = run,
 }

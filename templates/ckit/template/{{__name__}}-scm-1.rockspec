@@ -1,5 +1,5 @@
 -- name of the package to be published
-package = '{{__appname__}}'
+package = '{{__name__}}'
 
 -- version of the package; it's mandatory, but we don't use it in Tarantool;
 -- instead, provide below a specific branch in the package's repository at
@@ -8,7 +8,7 @@ version = 'scm-1'
 
 -- url and branch of the package's repository at GitHub
 source  = {
-    url    = 'git://github.com/tarantool/{{__appname__}}.git';
+    url    = 'git://github.com/tarantool/{{__name__}}.git';
     branch = 'master';
 }
 
@@ -21,7 +21,7 @@ description = {
     A ready-to-use C module template.
     Clone and modify it to create new modules.
     ]];
-    homepage = 'https://github.com/tarantool/{{__appname__}}.git';
+    homepage = 'https://github.com/tarantool/{{__name__}}.git';
     maintainer = "Roman Tsisyk <roman@tarantool.org>";
     license  = 'BSD2';
 }

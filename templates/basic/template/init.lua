@@ -12,7 +12,7 @@ local fio = require 'fio'
 
 local conf_path = os.getenv('CONF')
 if conf_path == nil then
-    conf_path = '/etc/{{__appname__}}/conf.lua'
+    conf_path = '/etc/{{__name__}}/conf.lua'
 end
 local conf = require('config')(conf_path)
 

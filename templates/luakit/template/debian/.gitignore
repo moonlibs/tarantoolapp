@@ -1,4 +1,4 @@
-tarantool-{{__appname__}}/
+tarantool-{{__name__}}/
 files
 stamp-*
 *.substvars

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
-project({{__appname__}} C)
-# project({{__appname__}} C CXX)
+project({{__name__}} C)
+# project({{__name__}} C CXX)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE RelWithDebInfo)
@@ -28,14 +28,14 @@ set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra")
 
 # Build module
-add_subdirectory({{__appname__}})
+add_subdirectory({{__name__}})
 
 enable_testing()
 
 set (LUA_PATH "LUA_PATH=${PROJECT_SOURCE_DIR}/?.lua\\;${PROJECT_SOURCE_DIR}/?/init.lua\\;;")
 
-add_test({{__appname__}} ${CMAKE_SOURCE_DIR}/test/{{__appname__}}.test.lua)
-set_tests_properties({{__appname__}} PROPERTIES ENVIRONMENT "${LUA_PATH}")
+add_test({{__name__}} ${CMAKE_SOURCE_DIR}/test/{{__name__}}.test.lua)
+set_tests_properties({{__name__}} PROPERTIES ENVIRONMENT "${LUA_PATH}")
 
 # Add `make check`
 add_custom_target(check

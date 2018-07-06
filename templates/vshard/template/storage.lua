@@ -15,7 +15,7 @@ rawset(_G, 'INSTANCE_NAME', INSTANCE)
 
 local conf_path = os.getenv('CONF')
 if conf_path == nil then
-    conf_path = '/etc/{{__appname__}}/conf_storage.lua'
+    conf_path = '/etc/{{__name__}}/conf_storage.lua'
 end
 local conf = require('config')({
     file = conf_path,

@@ -6,48 +6,36 @@ print('Tarantool version: ' .. _TARANTOOL)
 require 'strict'.on()
 package.path = '../?.lua;'..package.path
 
-local function dump(x)
-	local j = require'yaml'.new()
-	j.cfg{
-		encode_use_tostring = true;
-	}
-	return j.encode(x)
-end
-
+local argparse = require 'tarantoolapp.argparse'
 local util = require 'tarantoolapp.util'
-local datafile = require 'datafile'
-local fio = require 'fio'
-
-local info = {}
-local pathinfo = util.pathinfo()
-
-info.script  = pathinfo.path
-info.myname  = pathinfo.name:gsub('%.lua$','')
-info.rootdir = pathinfo.dir:match("^(.+)/bin$")
-
--- print(dump(info))
-
 local commands = require 'tarantoolapp.commands'
-if #arg == 0 or arg[1]:match('^-') then
-	print("Usage:\n"
-		.."\t"..info.myname.." help\n"
-		.."\t"..info.myname.." command [ options ]\n"
-		.."\t"..info.myname.." help command\n"
-	)
-	os.exit(1)
+
+local argparser = argparse(){
+	name = "tarantoolapp",
+	description = "App starter & dependency manager for Tarantool application server"
+}
+argparser = argparser:add_help(false)
+
+argparser = argparser:command_target('command')
+local arg_commands = {}
+for command_name, command in pairs(commands.all()) do
+	local cmd = argparser:command(command_name, command.description())
+	command.argparse(argparser, cmd)
+	if command.argparse_extra then
+		arg_commands[command_name] = {
+			command = command,
+			arg_cmd = cmd,
+		}
+	end
 end
 
-local is_help = arg[1] == 'help'
-
-if is_help then
-	table.remove(arg,1,1)
+for _, c in pairs(arg_commands) do
+	c.command.argparse_extra(argparser, c.arg_cmd)
 end
+argparser = argparser:add_help(true)
+local args = argparser:parse()
 
-if arg[1] == nil then
-	util.errorf("Command not specified. Run tarantoolapp <command> <args>")
-end
-
-local command = commands.load(arg[1])
+local command = commands.load(args.command)
 if not command then
 	util.printf("Command %s not found. List of available commands:", arg[1])
 	for name,cmd in pairs( commands.list() ) do
@@ -56,24 +44,11 @@ if not command then
 	os.exit(1)
 end
 
-if is_help then
-	print("Usage:\n"
-		.."\t"..info.myname.." "..arg[1].." [ options ]\n"
-	)
-	if command.description then
-		print(command.description(info))
-	end
-	if command.help then
-		print(command.help(info))
-	else
-		print("Command "..arg[1].." have no help information")
-	end
-	os.exit(1)
-end
-
 xpcall(
 	function()
-		command.run(info, util.table_slice(arg, 2))
+		args[args.command] = nil
+		args.command = nil
+		command.run(args)
 	end,
 	function(err)
 		print(err .. '\n' .. debug.traceback())

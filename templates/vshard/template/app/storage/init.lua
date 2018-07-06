@@ -2,9 +2,9 @@ local log = require 'log'
 
 box.once('access:v1', function()
     box.schema.user.grant('guest', 'read,write,execute', 'universe')
-    -- Uncomment this to create user {{__appname__}}_user
-    -- box.schema.user.create('{{__appname__}}_user', { password = '{{__appname__}}_pass' })
-    -- box.schema.user.grant('{{__appname__}}_user', 'read,write,execute', 'universe')
+    -- Uncomment this to create user {{__name__}}_user
+    -- box.schema.user.create('{{__name__}}_user', { password = '{{__name__}}_pass' })
+    -- box.schema.user.grant('{{__name__}}_user', 'read,write,execute', 'universe')
 end)
 
 local app = {

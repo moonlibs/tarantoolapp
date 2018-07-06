@@ -1,14 +1,14 @@
-Source: tarantool-{{__appname__}}
+Source: tarantool-{{__name__}}
 Priority: optional
 Section: database
 Maintainer: Roman Tsisyk <roman@tarantool.org>
 Build-Depends: debhelper (>= 9), tarantool (>= 1.6.8.0)
 Standards-Version: 3.9.8
-Homepage: https://github.com/tarantool/{{__appname__}}
-Vcs-Git: git://github.com/tarantool/{{__appname__}}.git
-Vcs-Browser: https://github.com/tarantool/{{__appname__}}
+Homepage: https://github.com/tarantool/{{__name__}}
+Vcs-Git: git://github.com/tarantool/{{__name__}}.git
+Vcs-Browser: https://github.com/tarantool/{{__name__}}
 
-Package: tarantool-{{__appname__}}
+Package: tarantool-{{__name__}}
 Architecture: all
 Depends: tarantool (>= 1.6.8.0), ${shlibs:Depends}, ${misc:Depends}
 Pre-Depends: ${misc:Pre-Depends}

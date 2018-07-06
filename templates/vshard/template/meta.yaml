@@ -1,4 +1,4 @@
-name: {{__appname__}}
+name: {{__name__}}
 version: {{__version__}}
 deps:
   - https://raw.githubusercontent.com/moonlibs/config/master/rockspecs/config-scm-2.rockspec

@@ -4,4 +4,4 @@
 	dh $@
 
 override_dh_auto_test:
-	prove -v ./test/{{__appname__}}.test.lua
+	prove -v ./test/{{__name__}}.test.lua

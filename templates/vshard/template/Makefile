@@ -38,4 +38,4 @@ dep-local:
 	tarantoolapp dep --only localdeps
 
 rpm:
-	rpmbuild -ba --define="SRC_DIR ${PWD}" rpm/{{__appname__}}.spec
+	rpmbuild -ba --define="SRC_DIR ${PWD}" rpm/{{__name__}}.spec

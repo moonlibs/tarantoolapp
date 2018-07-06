@@ -28,31 +28,38 @@ local folder_perms = bit.bor(modes.S_IRUSR, modes.S_IWUSR, modes.S_IXUSR,
 	return 'file'
 end
 
-function fileio.listdir(path, directory_first)
-	if directory_first== nil then
+function fileio.listdir(path, directory_first, recursive)
+	if directory_first == nil then
 		directory_first = true
+	end
+
+	if recursive == nil then
+		recursive = true
 	end
 
 	local files = {}
 	for _, postfix in ipairs({'/*', '/.*'}) do
 		for _, file in ipairs(fio.glob(path .. postfix)) do
-			if fio.basename(file) ~= "." and fio.basename(file) ~= ".." then
+			local name = fio.basename(file)
+			if name ~= "." and name ~= ".." then
 				local mode = fileio.get_mode(file)
 
 				if directory_first then
 					table.insert(files, {
 						mode = mode,
-						path = file
+						path = file,
+						name = name,
 					})
 				end
-				if mode == "directory" then
+				if mode == "directory" and recursive then
 					files = util.merge_tables(files, fileio.listdir(file))
 				end
 
 				if not directory_first then
 					table.insert(files, {
 						mode = mode,
-						path = file
+						path = file,
+						name = name,
 					})
 				end
 			end

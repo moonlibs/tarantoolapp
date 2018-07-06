@@ -17,6 +17,7 @@ dependencies = {
     'lua >= 5.1',
     'datafile',
     'lua-resty-template ~> 1.9',
+    -- 'argparse ~> 0.6',
     -- 'alt-getopt',
 }
 
@@ -25,9 +26,8 @@ build = {
     type = 'builtin',
     copy_directories = {'templates'},
     modules = {
-        ['tarantoolapp.cli']             = 'tarantoolapp/cli.lua',
         ['tarantoolapp.compat']          = 'tarantoolapp/compat.lua',
-        ['tarantoolapp.getopt']          = 'tarantoolapp/getopt.lua',
+        ['tarantoolapp.argparse']        = 'tarantoolapp/argparse.lua',
         ['tarantoolapp.commands']        = 'tarantoolapp/commands.lua',
         ['tarantoolapp.commands.create'] = 'tarantoolapp/commands/create.lua',
         ['tarantoolapp.commands.dep']    = 'tarantoolapp/commands/dep.lua',

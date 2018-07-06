@@ -7,10 +7,10 @@
 
 /* internal function */
 static int
-{{__appname__}}_func(struct lua_State *L)
+{{__name__}}_func(struct lua_State *L)
 {
 	if (lua_gettop(L) < 2)
-		luaL_error(L, "Usage: {{__appname__}}_func(a: number, b: number)");
+		luaL_error(L, "Usage: {{__name__}}_func(a: number, b: number)");
 
 	int a = lua_tointeger(L, 1);
 	int b = lua_tointeger(L, 2);
@@ -21,12 +21,12 @@ static int
 
 /* exported function */
 LUA_API int
-luaopen_{{__appname__}}_lib(lua_State *L)
+luaopen_{{__name__}}_lib(lua_State *L)
 {
-	/* result returned from require('{{__appname__}}.lib') */
+	/* result returned from require('{{__name__}}.lib') */
 	lua_newtable(L);
 	static const struct luaL_Reg meta [] = {
-		{"func", {{__appname__}}_func},
+		{"func", {{__name__}}_func},
 		{NULL, NULL}
 	};
 	luaL_register(L, NULL, meta);

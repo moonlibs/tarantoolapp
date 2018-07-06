@@ -32,7 +32,7 @@ end
 -- Exported functions
 --
 
--- result returned from require('{{__appname__}}')
+-- result returned from require('{{__name__}}')
 return {
     test = test;
 }

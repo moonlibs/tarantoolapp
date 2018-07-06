@@ -9,8 +9,8 @@
 local log = require('log') -- some other Tarantool module
 
 -- C library
-local {{__appname__}}lib = require('{{__appname__}}.lib')
--- Now you can use exported C functions from '{{__appname__}}/lib.c' submodule in your code
+local {{__name__}}lib = require('{{__name__}}.lib')
+-- Now you can use exported C functions from '{{__name__}}/lib.c' submodule in your code
 
 --
 -- Constants
@@ -33,9 +33,9 @@ end
 -- Exported functions
 --
 
--- result returned from require('{{__appname__}}')
+-- result returned from require('{{__name__}}')
 return {
     func = func; -- pure Lua function
-    cfunc = {{__appname__}}lib.func; -- C function
+    cfunc = {{__name__}}lib.func; -- C function
 }
 -- vim: ts=4 sts=4 sw=4 et
