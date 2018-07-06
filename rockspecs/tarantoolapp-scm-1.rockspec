@@ -17,8 +17,6 @@ dependencies = {
     'lua >= 5.1',
     'datafile',
     'lua-resty-template ~> 1.9',
-    -- 'argparse ~> 0.6',
-    -- 'alt-getopt',
 }
 
 
