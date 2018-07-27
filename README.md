@@ -16,6 +16,12 @@ Or to install most recent version
 $ luarocks install --server=http://luarocks.org/dev tarantoolapp
 ```
 
+In order for this to succeed it is required to have both Tarantool and Luarocks repos in `~/.luarocks/config.yaml`:
+```
+➜ cat ~/.luarocks/config.lua        
+rocks_servers = {[[http://rocks.tarantool.org]], [[https://luarocks.org]]}
+```
+
 ## Bootstrap an application
 
 To create a project template for application with name `myapp` in current directoty:
