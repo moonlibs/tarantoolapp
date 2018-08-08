@@ -12,6 +12,10 @@ local function printf(f, ...)
     print(string.format('[%s] ' .. f, cfg.name, ...))
 end
 
+local function raisef(f, ...)
+    error(string.format('[%s] ' .. f, cfg.name, ...))
+end
+
 local function errorf(f, ...)
     print(string.format('[%s] ' .. f, cfg.name, ...))
     os.exit(1)
@@ -39,7 +43,7 @@ local function ensure_rocksservers(path)
         end
         local data = f:read(f:stat().size)
         f:close()
-        if data:match('rocks%.tarantool%.org') and data:match('rocks%.moonscript%.org') then
+        if data:match('rocks%.tarantool%.org') and (data:match('rocks%.moonscript%.org') or data:match('luarocks%.org')) then
             printf('Already have proper rocks servers')
             return
         end
@@ -54,7 +58,7 @@ local function ensure_rocksservers(path)
     if not fh then
         errorf("Failed to open file %s: %s", path, errno.strerror())
     end
-    fh:write('\nrocks_servers = {[[http://rocks.tarantool.org/]], [[https://rocks.moonscript.org]]}\n')
+    fh:write('\nrocks_servers = {[[http://rocks.tarantool.org]], [[https://luarocks.org]]}\n')
     fh:close()
 end
 
@@ -64,7 +68,7 @@ local function execute(cmd)
     printf("%s...", raw_cmd)
     local res = os.execute('exec ' .. raw_cmd)
     if res ~= 0 then
-        errorf('%s failed', raw_cmd)
+        raisef('%s failed', raw_cmd)
     end
     return res
 end
@@ -109,6 +113,7 @@ end
 local function argparse(argparser, cmd)
     cmd:option('-m --meta-file', 'path to meta.yaml file')
        :default('./meta.yaml')
+       :convert(fio.abspath)
     cmd:option('-t --tree', 'path to directory that will hold the dependencies')
        :default('.rocks')
        :convert(fio.abspath)
@@ -125,10 +130,9 @@ local function run(args)
 
     assert(args.meta_file ~= '', 'meta file is required')
 
-    args.meta_file = fio.abspath(args.meta_file)
     local meta_file = fio.open(args.meta_file)
     if meta_file == nil then
-        errorf('Meta file %s does not exist', args.meta_file)
+        util.errorf('Couldn\'t open %s: %s', args.meta_file, errno.strerror())
     end
     local metatext = meta_file:read(meta_file:stat().size)
     local tree = fio.abspath(args.tree)
