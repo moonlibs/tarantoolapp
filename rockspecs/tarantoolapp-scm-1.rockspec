@@ -2,7 +2,7 @@ package = 'tarantoolapp'
 version = 'scm-1'
 
 source  = {
-    url    = 'git://github.com/moonlibs/tarantoolapp';
+    url    = 'gitrec://github.com/moonlibs/tarantoolapp';
     branch = 'master';
 }
 
