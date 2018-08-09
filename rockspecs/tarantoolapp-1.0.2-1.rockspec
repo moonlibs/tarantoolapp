@@ -1,9 +1,9 @@
 package = 'tarantoolapp'
-version = 'scm-1'
+version = '1.0.2-1'
 
 source  = {
-    url    = 'gitrec://github.com/moonlibs/tarantoolapp';
-    branch = 'master';
+    url    = 'gitrec+https://github.com/moonlibs/tarantoolapp';
+    branch = '1.0.2';
 }
 
 description = {
@@ -15,6 +15,7 @@ description = {
 
 dependencies = {
     'lua >= 5.1',
+    'luarocks-fetch-gitrec',
     --'datafile',
     'lua-resty-template ~> 1.9',
 }

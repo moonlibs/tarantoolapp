@@ -1,9 +1,9 @@
 package = 'tarantoolapp'
-version = '1.0.1-1'
+version = 'scm-3'
 
 source  = {
-    url    = 'git://github.com/moonlibs/tarantoolapp';
-    branch = '1.0.1';
+    url    = 'gitrec+https://github.com/moonlibs/tarantoolapp';
+    branch = 'master';
 }
 
 description = {
@@ -15,7 +15,8 @@ description = {
 
 dependencies = {
     'lua >= 5.1',
-    'datafile',
+    'luarocks-fetch-gitrec',
+    --'datafile',
     'lua-resty-template ~> 1.9',
 }
 
@@ -30,7 +31,25 @@ build = {
         ['tarantoolapp.commands.create'] = 'tarantoolapp/commands/create.lua',
         ['tarantoolapp.commands.dep']    = 'tarantoolapp/commands/dep.lua',
         ['tarantoolapp.fileio']          = 'tarantoolapp/fileio.lua',
-        ['tarantoolapp.util']            = 'tarantoolapp/util.lua'
+        ['tarantoolapp.util']            = 'tarantoolapp/util.lua',
+
+        ['datafile']                  = "third_party/datafile/datafile.lua",
+        ["datafile.openers.caller"]   = "third_party/datafile/datafile/openers/caller.lua",
+        ["datafile.openers.luarocks"] = "third_party/datafile/datafile/openers/luarocks.lua",
+        ["datafile.util"]             = "third_party/datafile/datafile/util.lua"
+    },
+    platforms = {
+        unix = {
+            modules = {
+                ["datafile.openers.xdg"]  = "third_party/datafile/datafile/openers/xdg.lua",
+                ["datafile.openers.unix"] = "third_party/datafile/datafile/openers/unix.lua",
+            }
+        },
+        windows = {
+            modules = {
+                ["datafile.openers.windows"] = "third_party/datafile/datafile/openers/windows.lua",
+            }
+        },
     },
     install = {
         bin = {
