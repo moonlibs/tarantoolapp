@@ -67,7 +67,10 @@ local function render_file(filepath, opts)
 end
 
 local function list_templates()
-	local templates_dir = datafile.path('templates')
+	local templates_dir, err = datafile.path('templates')
+	if err ~= nil then
+		error(err)
+	end
 	local dirs = fileio.listdir(templates_dir, nil, false)
 	local templates = {}
 	for _, el in ipairs(dirs) do

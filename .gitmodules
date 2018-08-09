@@ -1,0 +1,3 @@
+[submodule "third_party/datafile"]
+	path = third_party/datafile
+	url = https://github.com/igorcoding/datafile
