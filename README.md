@@ -18,7 +18,7 @@ $ luarocks install --server=http://luarocks.org/dev tarantoolapp
 
 In order for this to succeed it is required to have both Tarantool and Luarocks repos in `~/.luarocks/config.yaml`:
 ```
-➜ cat ~/.luarocks/config.lua        
+➜ cat ~/.luarocks/config.lua
 rocks_servers = {[[http://rocks.tarantool.org]], [[https://luarocks.org]]}
 ```
 
@@ -63,8 +63,7 @@ This command installs dependencies, specified in the `meta.yaml` file in current
 Full command is:
 
 ```
-$ tarantoolapp dep [-m <meta_file>] [-t <tree>]
-       [--luarocks-config <luarocks_config>] [-h]
+$ tarantoolapp dep [-m <meta_file>] [-t <tree>] [-h]
        [--only [<only>] ...]
 ```
 
@@ -72,7 +71,6 @@ $ tarantoolapp dep [-m <meta_file>] [-t <tree>]
 
 * **`<meta_file>`** - path to meta.yaml file (default: ./meta.yaml)
 * **`<tree>`** - path to directory that will hold the dependencies (default: .rocks)
-* **`<luarocks_config>`** - path to luarocks config (default: $HOME/.luarocks/config.lua)
 * **`<only>`** - install only these sections (deps, tntdeps or localdeps). Separated with spaces (e.g. `--only deps tntdeps`)
 
 

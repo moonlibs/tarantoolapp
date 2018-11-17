@@ -30,38 +30,6 @@ local function _string_split(s, sep)
     return parts
 end
 
-local function ensure_rocksservers(path)
-    local dir = fio.dirname(path)
-    if not fileio.path.is_dir(dir) then
-        fileio.mkdir(dir)
-    end
-
-    if fileio.path.exists(path) then
-        local f = fio.open(path)
-        if not f then
-            errorf("Failed to open file %s: %s", path, errno.strerror())
-        end
-        local data = f:read(f:stat().size)
-        f:close()
-        if data:match('rocks%.tarantool%.org') and (data:match('rocks%.moonscript%.org') or data:match('luarocks%.org')) then
-            printf('Already have proper rocks servers')
-            return
-        end
-    else
-        local directory = fio.dirname(path)
-        if not fio.mktree(directory) then
-            errorf('Error while creating %s: %s', directory, errno.strerror())
-        end
-    end
-    printf("Patch %s with proper rocks servers", path)
-    local fh = fio.open(path, {'O_CREAT', 'O_APPEND', 'O_RDWR'}, 0664)
-    if not fh then
-        errorf("Failed to open file %s: %s", path, errno.strerror())
-    end
-    fh:write('\nrocks_servers = {[[http://rocks.tarantool.org]], [[https://luarocks.org]]}\n')
-    fh:close()
-end
-
 
 local function execute(cmd)
     local raw_cmd = table.concat(cmd, ' ')
@@ -78,7 +46,12 @@ local function cmd_luarocks(subcommand, dep, tree)
     assert(subcommand ~= nil, 'subcommand is required')
     assert(dep ~= nil, 'dep is required')
 
-    local cmd = {'luarocks', subcommand, dep}
+    local cmd = {
+        'luarocks',
+        '--server=https://luarocks.org', '--server=http://rocks.tarantool.org',
+        subcommand,
+        dep
+    }
     if tree then
         table.insert(cmd, '--tree='..tree)
     end
@@ -90,7 +63,13 @@ local function cmd_tarantoolctl(subcommand, dep, tree)
     assert(subcommand ~= nil, 'subcommand is required')
     assert(dep ~= nil, 'dep is required')
 
-    local cmd = {'tarantoolctl', 'rocks', subcommand, dep}
+    local cmd = {
+        'tarantoolctl',
+        'rocks',
+        '--server=https://luarocks.org', '--server=http://rocks.tarantool.org',
+        subcommand,
+        dep
+    }
     return execute(cmd)
 end
 
@@ -117,8 +96,6 @@ local function argparse(argparser, cmd)
     cmd:option('-t --tree', 'path to directory that will hold the dependencies')
        :default('.rocks')
        :convert(fio.abspath)
-    cmd:option('--luarocks-config', 'path to luarocks config')
-       :default(fio.pathjoin(os.getenv('HOME'), '.luarocks', 'config.lua'))
     cmd:option('--only', 'install only these sections (deps, tntdeps or localdeps)')
        :args("*"):action("concat")
 end
@@ -157,8 +134,6 @@ local function run(args)
 
     cfg.name = cfg.name or appname
     assert(cfg.name, 'Name must be defined')
-
-    ensure_rocksservers(args.luarocks_config)
 
     printf('Installing dependencies...')
     local deps = cfg.deps or {}

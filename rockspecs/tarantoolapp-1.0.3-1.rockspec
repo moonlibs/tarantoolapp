@@ -1,9 +1,9 @@
 package = 'tarantoolapp'
-version = '1.0.2-1'
+version = '1.0.3-1'
 
 source  = {
     url    = 'gitrec+https://github.com/moonlibs/tarantoolapp';
-    branch = '1.0.2';
+    branch = '1.0.3';
 }
 
 description = {
