@@ -49,6 +49,7 @@ local function cmd_luarocks(subcommand, dep, tree)
     local cmd = {
         'luarocks',
         '--server=https://luarocks.org', '--server=http://rocks.tarantool.org',
+        '--lua-version=5.1',
         subcommand,
         dep
     }
