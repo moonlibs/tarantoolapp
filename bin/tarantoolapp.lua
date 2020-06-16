@@ -3,6 +3,11 @@ if _TARANTOOL == nil then
 end
 print('Tarantool version: ' .. _TARANTOOL)
 
+local ok, luarocks_cfg = pcall(require, 'luarocks.core.cfg')
+if ok and luarocks_cfg.init ~= nil then
+	luarocks_cfg.init()
+end
+
 require 'strict'.on()
 package.path = '../?.lua;'..package.path
 
