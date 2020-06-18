@@ -4,6 +4,6 @@ deps:
   - https://raw.githubusercontent.com/moonlibs/config/master/config-scm-1.rockspec
   - https://raw.githubusercontent.com/moonlibs/package-reload/master/package.reload-scm-1.rockspec
   {% if use_spacer then %}
-  - https://raw.githubusercontent.com/igorcoding/tarantool-spacer/master/rockspecs/spacer-scm-2.rockspec
+  - https://raw.githubusercontent.com/igorcoding/tarantool-spacer/master/rockspecs/spacer-scm-3.rockspec
   {% end %}
 tntdeps: {}
