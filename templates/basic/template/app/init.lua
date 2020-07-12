@@ -16,7 +16,7 @@ function app.init(config)
     log.info('app "{{__name__}}" init')
 
     {% if use_spacer then %}
-    box.spacer = require 'spacer'({
+    box.spacer = require 'spacer'.new({
         migrations = config.migrations
     })
     require 'schema'

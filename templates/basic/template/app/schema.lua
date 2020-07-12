@@ -1,4 +1,4 @@
-local spacer = require 'spacer'
+local spacer = require 'spacer'.get()
 
 --[[
 spacer:space({
